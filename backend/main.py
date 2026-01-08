@@ -64,26 +64,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add additional middleware to handle CORS preflight requests
+# Additional logging for debugging
 @app.middleware("http")
-async def add_cors_headers(request, call_next):
-    # Handle preflight requests
-    if request.method == "OPTIONS":
-        response = Response()
-        response.headers["Access-Control-Allow-Origin"] = request.headers.get("origin", "*")
-        response.headers["Access-Control-Allow-Credentials"] = "true"
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
-        response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, X-Requested-With"
-        response.status_code = 200
-        return response
+async def debug_cors(request, call_next):
+    print(f"[CORS DEBUG] Request method: {request.method}")
+    print(f"[CORS DEBUG] Origin: {request.headers.get('origin')}")
+    print(f"[CORS DEBUG] Request URL: {request.url}")
 
     response = await call_next(request)
 
-    # Add CORS headers to all responses
-    response.headers["Access-Control-Allow-Origin"] = request.headers.get("origin", "*")
+    # Ensure CORS headers are set
+    origin = request.headers.get("origin")
+    if origin:
+        print(f"[CORS DEBUG] Setting Access-Control-Allow-Origin to: {origin}")
+        response.headers["Access-Control-Allow-Origin"] = origin
+    else:
+        print(f"[CORS DEBUG] Setting Access-Control-Allow-Origin to: *")
+        response.headers["Access-Control-Allow-Origin"] = "*"
+
     response.headers["Access-Control-Allow-Credentials"] = "true"
     response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, X-Requested-With"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+
+    # Handle preflight requests properly
+    if request.method == "OPTIONS":
+        response.status_code = 200
+        print(f"[CORS DEBUG] Handled OPTIONS request")
 
     return response
 
