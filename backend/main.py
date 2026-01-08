@@ -67,22 +67,23 @@ app.add_middleware(
 # Add additional middleware to handle CORS preflight requests
 @app.middleware("http")
 async def add_cors_headers(request, call_next):
+    # Handle preflight requests
+    if request.method == "OPTIONS":
+        response = Response()
+        response.headers["Access-Control-Allow-Origin"] = request.headers.get("origin", "*")
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+        response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, X-Requested-With"
+        response.status_code = 200
+        return response
+
     response = await call_next(request)
 
     # Add CORS headers to all responses
-    origin = request.headers.get("origin")
-    if origin:
-        response.headers["Access-Control-Allow-Origin"] = origin
-    else:
-        response.headers["Access-Control-Allow-Origin"] = "*"
-
+    response.headers["Access-Control-Allow-Origin"] = request.headers.get("origin", "*")
     response.headers["Access-Control-Allow-Credentials"] = "true"
     response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, X-Requested-With"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
-
-    # Handle preflight requests
-    if request.method == "OPTIONS":
-        response.status_code = 200
 
     return response
 
