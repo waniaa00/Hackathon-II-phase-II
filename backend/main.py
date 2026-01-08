@@ -3,7 +3,7 @@ FastAPI Backend for Todo Application
 Provides REST API endpoints for authentication and todo management
 """
 
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlmodel import Session, SQLModel, create_engine, select
@@ -62,8 +62,6 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    # Add exposed headers to help with debugging
-    allow_origin_regex=r"https://.*\.vercel\.app",
 )
 
 # Add additional middleware to handle CORS preflight requests
@@ -72,18 +70,19 @@ async def add_cors_headers(request, call_next):
     response = await call_next(request)
 
     # Add CORS headers to all responses
-    response.headers["Access-Control-Allow-Origin"] = "*"
+    origin = request.headers.get("origin")
+    if origin:
+        response.headers["Access-Control-Allow-Origin"] = origin
+    else:
+        response.headers["Access-Control-Allow-Origin"] = "*"
+
     response.headers["Access-Control-Allow-Credentials"] = "true"
-    response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, X-Requested-With"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
 
     # Handle preflight requests
     if request.method == "OPTIONS":
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
         response.status_code = 200
-        return response
 
     return response
 
