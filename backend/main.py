@@ -52,7 +52,8 @@ origins = [
     "http://localhost:3000",
     "http://localhost:3001",
     "https://*.vercel.app",
-    # Add your production frontend URL here
+    "https://hackathon-ii-phase-ii-ashy.vercel.app",  # Your specific Vercel URL
+    # Add other production URLs as needed
 ]
 
 app.add_middleware(
