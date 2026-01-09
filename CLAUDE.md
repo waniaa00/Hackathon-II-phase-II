@@ -1,140 +1,169 @@
----
-feature: 002-dashboard-branding
-date: 2026-01-08
-model: claude-sonnet-4-5-20250929
----
+# Agent Context for Frontend-Backend Integration
 
-# Agent Context for Dashboard UI & Application Branding
-
-This file provides additional context for the agent regarding dashboard and branding capabilities in the TASKIFY todo app.
+This file provides additional context for the agent regarding frontend-backend integration capabilities in the TASKIFY todo app.
 
 ## New Capabilities/Technologies
 
-<!-- AGENT_CONTEXT_START -->
-### Dashboard UI with TASKIFY Branding
+### Frontend-Backend Integration with Authentication UI
 
-**Feature**: 002-dashboard-branding
+**Feature**: 006-frontend-backend-integration
 **Status**: Planning Complete
-**Tech Stack**: Next.js 14+ App Router, React 18+, Tailwind CSS 3.4+, heroicons, date-fns 3.x
+**Tech Stack**: Next.js 14+, React 18+, TypeScript 5+, FastAPI 0.104+, Better-Auth 1.1+, Python 3.11+
 
-#### Core Dashboard Components
+#### Authentication UI Components
 
-1. **Navigation Bar (`Navbar.tsx`)**
-   - Persistent across all routes (placed in root layout)
-   - TASKIFY branding (Logo + title text)
-   - Navigation links (Dashboard, All Tasks, etc.)
-   - Active route highlighting
-   - Mobile-responsive (collapses on small screens)
-   - Sticky positioning (top-0 z-50)
+1. **Login Page (`app/login/page.tsx`)**
+   - Email/password form with validation
+   - Loading state indicators
+   - Error messaging
+   - Redirect to dashboard on success
+   - Link to signup page
 
-2. **Dashboard Summary Cards (`SummaryCard.tsx`, `DashboardSummary.tsx`)**
-   - 4 cards: Total Tasks, Completed, Pending, Overdue
-   - Derived state calculated via useMemo from TaskState.tasks[]
-   - Color-coded (blue/green/yellow/red) with heroicons
-   - Responsive grid: 1 col (mobile) → 2x2 (tablet) → 4 col (desktop)
-   - Static cards (non-interactive) using `<article>` semantic HTML
-   - Performance: O(n) calculation with <300ms target for 100 tasks
+2. **Signup Page (`app/signup/page.tsx`)**
+   - Registration form with validation
+   - Password confirmation
+   - Loading state indicators
+   - Error messaging
+   - Redirect options after success
 
-3. **Today's Focus Section (`TodaysFocus.tsx`)**
-   - Filtered task list showing urgent/actionable tasks
-   - Criteria: (due today OR high priority) AND incomplete
-   - Uses `filterTodaysFocusTasks` utility with useMemo
-   - Reuses `TaskItem` component from todo-frontend-ui (compact variant)
-   - Empty state with positive messaging
-   - Real-time updates when task state changes
+3. **Auth Provider (`components/auth/AuthProvider.tsx`)**
+   - Context provider for auth state
+   - Centralized authentication logic
+   - Session management
+   - Loading/error states
 
-4. **Quick Actions Panel (`QuickActions.tsx`, `QuickActionButton.tsx`)**
-   - 3 action buttons:
-     - "Add Task" (primary, blue) - Opens TaskForm modal
-     - "View All Tasks" (secondary, gray) - Navigates to main task list
-     - "Clear Completed" (destructive, red) - Confirmation dialog → CLEAR_COMPLETED action
-   - Button disabled states (e.g., Clear Completed when completedCount === 0)
-   - Accessible with ARIA labels and keyboard navigation
+#### Protected Routing
+
+1. **Protected Route Component (`components/auth/ProtectedRoute.tsx`)**
+   - Wrapper for authenticated-only pages
+   - Redirects unauthenticated users to login
+   - Session validation
+   - Loading state during auth check
+
+2. **Route Guarding Pattern**
+   - Higher-order component approach
+   - Context-based auth state checking
+   - Automatic redirects
+   - Session expiration handling
+
+#### API Client Integration
+
+1. **Centralized API Client (`lib/api/client.ts`)**
+   - Base configuration for all API calls
+   - Auth header injection
+   - Error handling and normalization
+   - Request/response interceptors
+
+2. **Auth API Module (`lib/api/auth.ts`)**
+   - Login, signup, logout functions
+   - Session token management
+   - Error handling for auth operations
+
+3. **Todo API Module (`lib/api/todos.ts`)**
+   - CRUD operations for todos
+   - Response type safety
+   - Error handling for todo operations
 
 #### State Management
 
-- **No New State**: Dashboard consumes existing TaskContext from todo-frontend-ui
-- **Derived State Only**:
-  - `DashboardStats`: Calculated counts (total, completed, pending, overdue)
-  - `TodaysFocusTasks`: Filtered array via `filterTodaysFocusTasks`
-- **useMemo Optimization**: Recalculates only when tasks array changes
-- **Existing Actions**: Dispatches ADD_TASK, CLEAR_COMPLETED, TOGGLE_COMPLETE
+1. **Auth Context (`context/AuthContext.tsx`)**
+   - Global authentication state
+   - User information storage
+   - Authentication methods (login, logout, etc.)
+   - Loading and error states
 
-#### Component Reuse from todo-frontend-ui
+2. **Todo State Management**
+   - TanStack Query for server state
+   - Caching and background updates
+   - Optimistic updates
+   - Error handling and retries
 
-- `TaskItem` - Used in Today's Focus with compact prop
-- `TaskForm` - Triggered by "Add Task" quick action
-- `DeleteConfirmation` - Pattern reused for "Clear Completed" confirmation
-- `Button`, `Badge`, `EmptyState` - UI components
-- `useTasks` hook - TaskContext consumer
-- `isToday`, `isPast` utilities - Date comparison (dateUtils.ts)
+#### Component Reuse Strategy
 
-#### Routing & Layouts
+- **UI Components**: Button, Input, Card, Alert from `components/ui/`
+- **Form Components**: ControlledInput, FormError from `components/forms/`
+- **Loading Components**: LoadingSpinner from `components/loading/`
+- **Auth Components**: AuthProvider, ProtectedRoute from `components/auth/`
 
-- **Dashboard Route**: `/dashboard` via `app/dashboard/page.tsx`
-- **Root Layout**: Navbar placed in `app/layout.tsx` for persistence
-- **Layout Pattern**: `<DashboardLayout>` with max-w-7xl container
-- **Navigation**: Next.js Link components with active route styling
+#### Data Types & Contracts
 
-#### Accessibility & Responsiveness
+- **Type Definitions**: Defined in `lib/types/` with auth.ts and todos.ts
+- **API Contracts**: Defined in `contracts/` with auth-contract.ts and todo-contract.ts
+- **Response Interfaces**: Standardized across frontend and backend
+- **Error Types**: Consistent error handling across the application
 
-- **WCAG AA Compliant**: Color contrast, keyboard navigation, ARIA attributes
-- **Semantic HTML**: `<article>` for cards, proper heading hierarchy, native buttons
-- **useId() Hook**: Unique IDs for aria-labelledby/aria-describedby relationships
-- **Focus Management**: Visible focus indicators (ring-2 ring-blue-500)
-- **Responsive Grid**: Tailwind grid utilities with breakpoint prefixes (md:, lg:)
-- **Mobile-First**: Stacked layouts on small screens, touch-friendly targets (44x44px min)
+#### Integration Patterns
 
-#### Icon Integration
+1. **Next.js App Router Integration**
+   - Client components for dynamic UI
+   - Server components for static content
+   - Layout and loading boundaries
+   - Route protection patterns
 
-- **Library**: @heroicons/react v2.x (outline variant for dashboard)
-- **Usage**: Native className prop integration with Tailwind
-- **Icons Used**:
-  - `ListBulletIcon` - Total Tasks
-  - `CheckCircleIcon` - Completed Tasks
-  - `ClockIcon` - Pending Tasks
-  - `ExclamationTriangleIcon` - Overdue Tasks
-  - `PlusIcon` - Add Task button
-  - `TrashIcon` - Clear Completed button
-- **Accessibility**: `aria-hidden="true"` on decorative icons, visible labels on all buttons
+2. **Better-Auth Integration**
+   - Session management following official docs
+   - Secure token handling
+   - Middleware integration
+   - API route protection
+
+3. **TanStack Query Integration**
+   - Server state management
+   - Caching and background updates
+   - Optimistic updates for better UX
+   - Error handling and retries
+
+#### Security Considerations
+
+- **Session Management**: Following Better-Auth best practices
+- **Token Storage**: Secure storage according to official docs
+- **CORS Configuration**: Proper backend configuration
+- **Input Validation**: Client and server-side validation
+- **Error Handling**: No sensitive information exposure
+
+#### Error Handling & UX
+
+1. **Form Validation**
+   - Client-side validation with immediate feedback
+   - Controlled components for predictability
+   - Error message display
+   - Submission prevention for invalid forms
+
+2. **API Error Handling**
+   - Centralized error normalization
+   - User-friendly error messages
+   - Retry mechanisms where appropriate
+   - Loading and error state management
+
+3. **Loading State Management**
+   - Component-level loading indicators
+   - Skeleton UI patterns
+   - Submission disable during processing
+   - Smooth transitions
 
 #### Performance Considerations
 
-- **useMemo**: Prevents unnecessary recalculations of derived state
-- **Dependency Arrays**: [tasks] for stats and filtered arrays
-- **Complexity**: O(n) for all dashboard calculations
-- **Target**: <300ms UI updates for 100 tasks, <2s initial load
-- **Batching**: React automatically batches state updates in event handlers
-
-#### Date Handling (Local Timezone)
-
-- **isToday**: Compares getDate(), getMonth(), getFullYear() for date-only comparison
-- **isPast**: Normalizes dates to midnight (setHours(0,0,0,0)) then compares timestamps
-- **Timezone**: All comparisons use local timezone (browser-based)
-- **Format**: ISO 8601 date strings (YYYY-MM-DD) in Task.dueDate field
-
-#### Batch Operations
-
-- **CLEAR_COMPLETED**: Single reducer action filters all completed tasks
-- **Pattern**: `state.tasks.filter(task => !task.completed)`
-- **Rationale**: Cleaner than multiple DELETE_TASK dispatches, atomic operation
-- **Confirmation**: User must confirm via dialog before execution
+- **Code Splitting**: Automatic with Next.js App Router
+- **Caching**: TanStack Query caching strategies
+- **Bundle Optimization**: Tree-shaking and dynamic imports
+- **API Efficiency**: Optimistic updates and background refetching
+- **Component Optimization**: Memoization where appropriate
 
 #### TypeScript Contracts
 
-- **Interfaces**: DashboardStats, SummaryCardProps, QuickActionButtonProps, TodaysFocusProps
-- **Location**: `specs/002-dashboard-branding/contracts/`
-- **Files**: `dashboard-types.ts`, `focus-filters.ts`
-- **Type Safety**: All dashboard components fully typed with JSDoc comments
+- **Interfaces**: AuthState, TodoApiResponse, etc. in data-model.md
+- **Type Safety**: Full type checking across API boundaries
+- **Contract Validation**: Compile-time checking of API contracts
+- **Documentation**: JSDoc comments for all exported functions
 
 #### Documentation References
 
 All patterns derived from Context7 MCP documentation:
 - Next.js App Router: File-system routing, layouts, client components
-- React: useMemo, useId, composition patterns, lifting state up
-- Tailwind CSS: Responsive grids, color utilities, breakpoints
-- MDN: Date API (getDate, getMonth, getFullYear), ARIA attributes
-- heroicons: Icon installation and usage with Tailwind
+- React: Context API, hooks, composition patterns
+- Better-Auth: Integration with Next.js App Router, session management
+- TanStack Query: Server state management, caching, optimistic updates
+- TypeScript: Type safety, interfaces, generics
+- MDN: Fetch API, security best practices
 
 #### Implementation Status
 
@@ -144,7 +173,6 @@ All patterns derived from Context7 MCP documentation:
 
 #### Related Features
 
-- **Depends On**: 004-todo-frontend-ui (TaskContext, TaskItem, TaskForm, utilities)
-- **Extends**: Adds dashboard route and navigation to existing todo app
-- **Integration**: Seamless - reuses 80% of todo-frontend-ui infrastructure
-<!-- AGENT_CONTEXT_END -->
+- **Depends On**: 005-backend-api-integration (FastAPI backend, Better-Auth)
+- **Extends**: Builds upon existing frontend structure with authentication
+- **Integration**: Seamless - adds auth layer to existing todo functionality
