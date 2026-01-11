@@ -103,6 +103,11 @@ class UserRegister(BaseModel):
     email: EmailStr
     password: str
 
+    @property
+    def safe_password(self) -> str:
+        """Truncate password to 72 bytes for bcrypt compatibility"""
+        return self.password[:72]
+
 class UserResponse(BaseModel):
     id: int
     email: str
@@ -144,10 +149,14 @@ class TodoResponse(BaseModel):
 
 # Utility functions
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    # Bcrypt has a 72 byte limit, truncate if necessary
+    safe_password = plain_password[:72] if len(plain_password) > 72 else plain_password
+    return pwd_context.verify(safe_password, hashed_password)
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    # Bcrypt has a 72 byte limit, truncate if necessary
+    safe_password = password[:72] if len(password) > 72 else password
+    return pwd_context.hash(safe_password)
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
