@@ -103,11 +103,6 @@ class UserRegister(BaseModel):
     email: EmailStr
     password: str
 
-    @property
-    def safe_password(self) -> str:
-        """Truncate password to 72 bytes for bcrypt compatibility"""
-        return self.password[:72]
-
 class UserResponse(BaseModel):
     id: int
     email: str
