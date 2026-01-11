@@ -307,59 +307,28 @@ def test_token():
 # Auth endpoints
 @app.post("/api/v1/auth/register", response_model=Token)
 def register(user_data: UserRegister, session: Session = Depends(get_session)):
-    try:
-        # Check if user exists
-        statement = select(User).where(User.email == user_data.email)
-        existing_user = session.exec(statement).first()
-
-        if existing_user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email already registered"
-            )
-
-        # Create new user
-        hashed_password = get_password_hash(user_data.password)
-        new_user = User(email=user_data.email, hashed_password=hashed_password)
-        session.add(new_user)
-        session.commit()
-        session.refresh(new_user)
-
-        # Create access token (convert user_id to string for JWT)
-        access_token = create_access_token(data={"sub": str(new_user.id)})
-
-        return {"access_token": access_token, "token_type": "bearer"}
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"[ERROR] Registration failed: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Registration failed: {str(e)}"
-        )
+    """
+    Registration is now handled by Better-Auth.
+    This endpoint exists for backward compatibility only.
+    """
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Registration is handled by Better-Auth. Please use the frontend registration form."
+    )
 
 @app.post("/api/v1/auth/login", response_model=Token)
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(get_session)
 ):
-    # Get user by email (username field contains email)
-    statement = select(User).where(User.email == form_data.username)
-    user = session.exec(statement).first()
-
-    if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    # Create access token (convert user_id to string for JWT)
-    access_token = create_access_token(data={"sub": str(user.id)})
-
-    return {"access_token": access_token, "token_type": "bearer"}
+    """
+    Login is now handled by Better-Auth.
+    This endpoint exists for backward compatibility only.
+    """
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Login is handled by Better-Auth. Please use the frontend login form."
+    )
 
 @app.get("/api/v1/auth/me", response_model=UserResponse)
 async def get_current_user_info(request: Request, session: Session = Depends(get_session)):
