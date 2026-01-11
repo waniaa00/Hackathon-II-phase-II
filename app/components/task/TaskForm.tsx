@@ -2,18 +2,13 @@
 
 /**
  * TaskForm Component
- * Form for adding new tasks with all metadata fields (US2)
- * Fields: title, description, priority, tags, due date
- * Validation: title required (1-200 chars), description optional (max 1000 chars)
+ * Minimal and clean form for adding new tasks
+ * Features: title, description, priority, tags, due date, recurring tasks
  */
 
 import { useState, FormEvent } from 'react';
 import { Priority, Recurrence } from '@/app/lib/types';
-import { Input } from '../ui/Input';
-import { Button } from '../ui/Button';
 import { useTasks } from '@/app/hooks/useTasks';
-import { RecurrencePreview } from './RecurrencePreview';
-import { SlideDown } from '../ui/SlideDown';
 
 interface TaskFormProps {
   onSuccess?: () => void;
@@ -21,51 +16,59 @@ interface TaskFormProps {
 
 export function TaskForm({ onSuccess }: TaskFormProps) {
   const { addTask } = useTasks();
+
+  // Form state
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<Priority>('medium');
   const [tags, setTags] = useState('');
   const [dueDate, setDueDate] = useState('');
-  const [enableRecurrence, setEnableRecurrence] = useState(false);
-  const [recurrenceFrequency, setRecurrenceFrequency] = useState<'daily' | 'weekly' | 'monthly'>('weekly');
-  const [recurrenceInterval, setRecurrenceInterval] = useState(1);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly'>('weekly');
+  const [interval, setInterval] = useState(1);
+
+  // UI state
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError('');
     setIsSubmitting(true);
 
-    // Validation
+    // Validate title
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
-      setError('Task title is required');
+      setError('Please enter a task title');
+      setIsSubmitting(false);
       return;
     }
     if (trimmedTitle.length > 200) {
-      setError('Task title must be 200 characters or less');
+      setError('Title must be 200 characters or less');
+      setIsSubmitting(false);
       return;
     }
 
+    // Validate description
     const trimmedDescription = description.trim();
     if (trimmedDescription.length > 1000) {
       setError('Description must be 1000 characters or less');
+      setIsSubmitting(false);
       return;
     }
 
-    // Parse tags (comma-separated, trim whitespace, remove empty)
+    // Parse tags
     const parsedTags = tags
       .split(',')
       .map((tag) => tag.trim())
       .filter((tag) => tag.length > 0);
 
-    // Build recurrence object if enabled
-    const recurrence: Recurrence | undefined = enableRecurrence
-      ? { frequency: recurrenceFrequency, interval: recurrenceInterval }
+    // Build recurrence
+    const recurrence: Recurrence | undefined = isRecurring
+      ? { frequency, interval }
       : undefined;
 
     try {
-      // Add task via API
       await addTask({
         title: trimmedTitle,
         description: trimmedDescription || undefined,
@@ -77,168 +80,182 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
       });
 
       // Reset form
-      setTitle('');
-      setDescription('');
-      setPriority('medium');
-      setTags('');
-      setDueDate('');
-      setEnableRecurrence(false);
-      setRecurrenceFrequency('weekly');
-      setRecurrenceInterval(1);
-      setError('');
-      setIsSubmitting(false);
+      resetForm();
       onSuccess?.();
-    } catch (error: any) {
-      setError(error.message || 'Failed to create task');
+    } catch (err: any) {
+      setError(err.message || 'Failed to create task');
       setIsSubmitting(false);
     }
   };
 
+  const resetForm = () => {
+    setTitle('');
+    setDescription('');
+    setPriority('medium');
+    setTags('');
+    setDueDate('');
+    setIsRecurring(false);
+    setFrequency('weekly');
+    setInterval(1);
+    setError('');
+    setIsSubmitting(false);
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
-      <Input
-        label="Task Title *"
-        type="text"
-        placeholder="What needs to be done?"
-        value={title}
-        onChange={(e) => {
-          setTitle(e.target.value);
-          setError('');
-        }}
-        maxLength={200}
-        autoComplete="off"
-        aria-label="Task title"
-      />
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Error Message */}
       {error && (
-        <div className="mt-1 p-2 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-xs text-red-600">{error}</p>
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
 
+      {/* Title Input */}
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-          Description
+        <label htmlFor="task-title" className="block text-sm font-medium text-gray-700 mb-1.5">
+          Title <span className="text-red-500">*</span>
         </label>
-        <textarea
-          id="description"
-          placeholder="Add more details (optional)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          maxLength={1000}
-          rows={2}
-          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-800"
-          aria-label="Task description"
+        <input
+          id="task-title"
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="What needs to be done?"
+          maxLength={200}
+          className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 text-gray-800"
+          autoFocus
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {/* Description Input */}
+      <div>
+        <label htmlFor="task-description" className="block text-sm font-medium text-gray-700 mb-1.5">
+          Description
+        </label>
+        <textarea
+          id="task-description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Add details (optional)"
+          maxLength={1000}
+          rows={3}
+          className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 resize-none text-gray-800"
+        />
+      </div>
+
+      {/* Priority and Due Date Row */}
+      <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="task-priority" className="block text-sm font-medium text-gray-700 mb-1.5">
             Priority
           </label>
           <select
-            id="priority"
+            id="task-priority"
             value={priority}
             onChange={(e) => setPriority(e.target.value as Priority)}
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-gray-800"
-            aria-label="Task priority"
+            className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 bg-white"
           >
-            <option value="low">🟢 Low</option>
-            <option value="medium">🟡 Med</option>
-            <option value="high">🔴 High</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
           </select>
         </div>
 
         <div>
-          <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="task-due-date" className="block text-sm font-medium text-gray-700 mb-1.5">
             Due Date
           </label>
           <input
+            id="task-due-date"
             type="date"
-            id="dueDate"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-gray-800"
-            aria-label="Task due date"
+            className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
           />
         </div>
       </div>
 
-      <Input
-        label="Tags"
-        type="text"
-        placeholder="work, urgent, personal (comma-separated)"
-        value={tags}
-        onChange={(e) => setTags(e.target.value)}
-        autoComplete="off"
-        aria-label="Task tags"
-      />
+      {/* Tags Input */}
+      <div>
+        <label htmlFor="task-tags" className="block text-sm font-medium text-gray-700 mb-1.5">
+          Tags
+        </label>
+        <input
+          id="task-tags"
+          type="text"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          placeholder="work, urgent, personal (comma-separated)"
+          className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 text-gray-800"
+        />
+      </div>
 
-      {/* Recurrence Section */}
-      <div className="border-t border-gray-200 pt-4">
-        <div className="flex items-center gap-2 mb-3">
+      {/* Recurring Task Section */}
+      <div className="pt-3 border-t border-gray-200">
+        <label className="flex items-center gap-2.5 cursor-pointer">
           <input
             type="checkbox"
-            id="enable-recurrence"
-            checked={enableRecurrence}
-            onChange={(e) => setEnableRecurrence(e.target.checked)}
+            checked={isRecurring}
+            onChange={(e) => setIsRecurring(e.target.checked)}
             className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
-            aria-label="Enable recurrence"
           />
-          <label htmlFor="enable-recurrence" className="text-sm font-medium text-gray-700 cursor-pointer">
-            Recurring Task
-          </label>
-        </div>
+          <span className="text-sm font-medium text-gray-700">Make this a recurring task</span>
+        </label>
 
-        <SlideDown isOpen={enableRecurrence}>
-          <div className="space-y-4 mt-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {isRecurring && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-3">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="recurrence-frequency" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="recurrence-frequency" className="block text-xs font-medium text-gray-600 mb-1.5">
                   Frequency
                 </label>
                 <select
                   id="recurrence-frequency"
-                  value={recurrenceFrequency}
-                  onChange={(e) => setRecurrenceFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
-                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-gray-800"
-                  aria-label="Recurrence frequency"
+                  value={frequency}
+                  onChange={(e) => setFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 bg-white"
                 >
-                  <option value="daily">📅 Daily</option>
-                  <option value="weekly">📆 Wkly</option>
-                  <option value="monthly">🗓️ Mon</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
                 </select>
               </div>
 
               <div>
-                <label htmlFor="recurrence-interval" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="recurrence-interval" className="block text-xs font-medium text-gray-600 mb-1.5">
                   Every
                 </label>
                 <input
-                  type="number"
                   id="recurrence-interval"
-                  value={recurrenceInterval}
-                  onChange={(e) => setRecurrenceInterval(Math.max(1, parseInt(e.target.value) || 1))}
+                  type="number"
+                  value={interval}
+                  onChange={(e) => setInterval(Math.max(1, parseInt(e.target.value) || 1))}
                   min="1"
                   max="30"
-                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded text-gray-800"
-                  aria-label="Recurrence interval"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
                 />
               </div>
             </div>
 
             {dueDate && (
-              <div className="mt-3">
-                <RecurrencePreview
-                  startDate={dueDate}
-                  recurrence={{ frequency: recurrenceFrequency, interval: recurrenceInterval }}
-                />
-              </div>
+              <p className="text-xs text-gray-600">
+                Repeats every {interval} {frequency === 'daily' ? 'day(s)' : frequency === 'weekly' ? 'week(s)' : 'month(s)'} starting from {new Date(dueDate).toLocaleDateString()}
+              </p>
             )}
           </div>
-        </SlideDown>
+        )}
       </div>
 
+      {/* Submit Button */}
+      <div className="pt-2">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          {isSubmitting ? 'Creating...' : 'Create Task'}
+        </button>
+      </div>
     </form>
   );
 }
