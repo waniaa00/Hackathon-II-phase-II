@@ -103,11 +103,14 @@ app = FastAPI(
     description="Backend API for Todo Application"
 )
 
-# CORS configuration - Allow all origins for now
-# Note: In production, you should restrict this to specific domains
+# CORS configuration - Allow specific origins with credentials
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins
+    allow_origins=[
+        "https://hackathon-ii-phase-ii-ashy.vercel.app",  # Production frontend
+        "http://localhost:3000",  # Local development
+        "http://localhost:3001",  # Alternative local port
+    ],
     allow_credentials=True,  # Enable credentials for Better-Auth cookies
     allow_methods=["*"],
     allow_headers=["*"],
