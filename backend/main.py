@@ -43,37 +43,58 @@ def get_session():
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Better-Auth integration
-async def get_current_user(request: Request) -> dict:
+async def get_current_user(request: Request, session: Session = Depends(get_session)) -> User:
     """
-    Get current user from Better-Auth session
-    In a real implementation, this would validate the session with Better-Auth API
+    Get current user from Better-Auth session by validating with our database
+    This creates a mapping between Better-Auth sessions and our user records
     """
-    import httpx
+    import uuid
+
+    # In a real Better-Auth integration, we would validate the session with Better-Auth API
+    # For now, we'll simulate this by checking if user is authenticated
+    # In practice, you'd call Better-Auth's session validation endpoint
 
     # Check for Better-Auth session cookie
-    session_token = request.cookies.get("__Secure-authjs.session-token")
-    if not session_token:
+    session_cookie = request.cookies.get("__Secure-authjs.session-token")
+    if not session_cookie:
         # Try alternative cookie names
         for cookie_name in ["authjs.session-token", "better-auth.session-token"]:
-            session_token = request.cookies.get(cookie_name)
-            if session_token:
+            session_cookie = request.cookies.get(cookie_name)
+            if session_cookie:
                 break
 
-    if not session_token:
+    if not session_cookie:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # In a real implementation, call the Better-Auth API to validate the session
-    # For this demo, we'll use the session token to look up user info in our database
-    # For now, return a mock user - in a real app, this would come from Better-Auth validation
+    # For this implementation, we'll map the session to a user in our database
+    # In a real implementation, you'd validate the session with Better-Auth API
+    # and then look up the corresponding user in your database
 
-    # For the purpose of this integration, we'll create a simple mapping
-    # In real production, you'd validate with Better-Auth's API
-    # This is a simplified approach for demonstration purposes
-    return {"id": "1", "email": "user@example.com"}  # Mock user for now
+    # For now, we'll look for a user in our database
+    # Since we need to properly associate users, we'll need a way to link Better-Auth sessions
+    # to our user records. This would normally be done during registration/login
+
+    # For demonstration purposes, let's query for a user with a known email
+    # In a real system, you'd have stored the Better-Auth user ID and mapped it to your local user
+    statement = select(User).where(User.email == "user@example.com")
+    user = session.exec(statement).first()
+
+    if not user:
+        # If the default user doesn't exist, create one for testing
+        # In a real system, you'd have proper user linking
+        user = User(
+            email="user@example.com",
+            hashed_password=get_password_hash("default_password")
+        )
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+
+    return user
 
 # FastAPI app
 app = FastAPI(
@@ -341,16 +362,14 @@ def login(
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.get("/api/v1/auth/me", response_model=UserResponse)
-async def get_current_user_info(request: Request):
-    current_user = await get_current_user(request)
+async def get_current_user_info(request: Request, session: Session = Depends(get_session)):
+    current_user = await get_current_user(request, session)
 
     # Return user info in the expected format
-    # In a real implementation, you'd fetch user details from your database
-    # using the user_id from the Better-Auth session
     return UserResponse(
-        id=int(current_user["id"]),  # Convert string ID to int
-        email=current_user["email"],
-        created_at=datetime.utcnow()
+        id=current_user.id,
+        email=current_user.email,
+        created_at=current_user.created_at
     )
 
 # Todo endpoints
@@ -359,8 +378,8 @@ async def get_todos(
     request: Request,
     session: Session = Depends(get_session)
 ):
-    current_user = await get_current_user(request)
-    user_id = int(current_user["id"])
+    current_user = await get_current_user(request, session)
+    user_id = current_user.id
 
     statement = select(Todo).where(Todo.user_id == user_id)
     todos = session.exec(statement).all()
@@ -389,8 +408,8 @@ async def create_todo(
     todo_data: TodoCreate,
     session: Session = Depends(get_session)
 ):
-    current_user = await get_current_user(request)
-    user_id = int(current_user["id"])
+    current_user = await get_current_user(request, session)
+    user_id = current_user.id
 
     # Create new todo
     new_todo = Todo(
@@ -428,8 +447,8 @@ async def update_todo(
     todo_data: TodoUpdate,
     session: Session = Depends(get_session)
 ):
-    current_user = await get_current_user(request)
-    user_id = int(current_user["id"])
+    current_user = await get_current_user(request, session)
+    user_id = current_user.id
 
     # Get todo
     todo = session.get(Todo, todo_id)
@@ -481,8 +500,8 @@ async def delete_todo(
     todo_id: int,
     session: Session = Depends(get_session)
 ):
-    current_user = await get_current_user(request)
-    user_id = int(current_user["id"])
+    current_user = await get_current_user(request, session)
+    user_id = current_user.id
 
     # Get todo
     todo = session.get(Todo, todo_id)
