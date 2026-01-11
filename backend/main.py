@@ -144,13 +144,15 @@ class TodoResponse(BaseModel):
 
 # Utility functions
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    # Bcrypt has a 72 byte limit, truncate if necessary
-    safe_password = plain_password[:72] if len(plain_password) > 72 else plain_password
+    # Bcrypt has a 72 BYTE limit (not character), truncate bytes if necessary
+    password_bytes = plain_password.encode('utf-8')[:72]
+    safe_password = password_bytes.decode('utf-8', errors='ignore')
     return pwd_context.verify(safe_password, hashed_password)
 
 def get_password_hash(password: str) -> str:
-    # Bcrypt has a 72 byte limit, truncate if necessary
-    safe_password = password[:72] if len(password) > 72 else password
+    # Bcrypt has a 72 BYTE limit (not character), truncate bytes if necessary
+    password_bytes = password.encode('utf-8')[:72]
+    safe_password = password_bytes.decode('utf-8', errors='ignore')
     return pwd_context.hash(safe_password)
 
 def create_access_token(data: dict) -> str:
