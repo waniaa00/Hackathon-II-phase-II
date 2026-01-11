@@ -2,6 +2,9 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Cache buster - change this value to force rebuild
+ARG CACHEBUST=1
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -17,6 +20,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code (updated: SHA256 password fix)
 COPY . ./
+
+# Verify the SHA256 fix is present (forces cache invalidation)
+RUN grep -q "_hash_password_sha256" main.py || echo "Warning: SHA256 fix not found"
 
 # Create necessary directories
 RUN mkdir -p /app/logs
