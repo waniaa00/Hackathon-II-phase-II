@@ -3,6 +3,8 @@ FastAPI Backend for Todo Application
 Provides REST API endpoints for authentication and todo management
 """
 
+from __future__ import annotations
+
 from fastapi import FastAPI, Depends, HTTPException, status, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
