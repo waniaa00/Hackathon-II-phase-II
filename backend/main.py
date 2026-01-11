@@ -47,18 +47,12 @@ app = FastAPI(
     description="Backend API for Todo Application"
 )
 
-# CORS configuration
-origins = [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "https://hackathon-ii-phase-ii-ashy.vercel.app",  # Your Vercel deployment
-    # Add other production URLs explicitly as needed
-]
-
+# CORS configuration - Allow all origins for now
+# Note: In production, you should restrict this to specific domains
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=False,  # Must be False when using allow_origins=["*"]
     allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["*"],
