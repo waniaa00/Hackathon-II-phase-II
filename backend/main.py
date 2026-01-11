@@ -3,7 +3,7 @@ FastAPI Backend for Todo Application
 Provides REST API endpoints for authentication and todo management
 """
 
-from fastapi import FastAPI, Depends, HTTPException, status, Response
+from fastapi import FastAPI, Depends, HTTPException, status, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlmodel import Session, SQLModel, create_engine, select
@@ -41,6 +41,9 @@ def get_session():
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# OAuth2 scheme for token authentication
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 # Better-Auth integration
 async def get_current_user(request: Request, session: Session = Depends(get_session)) -> User:
