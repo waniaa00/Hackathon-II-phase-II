@@ -13,6 +13,7 @@ import os
 from passlib.context import CryptContext
 import jwt
 from dotenv import load_dotenv
+import hashlib
 
 # Load environment variables from .env file
 load_dotenv()
@@ -143,17 +144,19 @@ class TodoResponse(BaseModel):
     updatedAt: datetime
 
 # Utility functions
+def _hash_password_sha256(password: str) -> str:
+    """Pre-hash password with SHA256 to ensure it's always under 72 bytes for bcrypt"""
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    # Bcrypt has a 72 BYTE limit (not character), truncate bytes if necessary
-    password_bytes = plain_password.encode('utf-8')[:72]
-    safe_password = password_bytes.decode('utf-8', errors='ignore')
-    return pwd_context.verify(safe_password, hashed_password)
+    # Pre-hash with SHA256 to avoid bcrypt's 72-byte limit
+    prehashed = _hash_password_sha256(plain_password)
+    return pwd_context.verify(prehashed, hashed_password)
 
 def get_password_hash(password: str) -> str:
-    # Bcrypt has a 72 BYTE limit (not character), truncate bytes if necessary
-    password_bytes = password.encode('utf-8')[:72]
-    safe_password = password_bytes.decode('utf-8', errors='ignore')
-    return pwd_context.hash(safe_password)
+    # Pre-hash with SHA256 to avoid bcrypt's 72-byte limit
+    prehashed = _hash_password_sha256(password)
+    return pwd_context.hash(prehashed)
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
