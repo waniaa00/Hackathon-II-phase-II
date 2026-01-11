@@ -51,9 +51,8 @@ app = FastAPI(
 origins = [
     "http://localhost:3000",
     "http://localhost:3001",
-    "https://*.vercel.app",
-    "https://hackathon-ii-phase-ii-ashy.vercel.app",  # Your specific Vercel URL
-    # Add other production URLs as needed
+    "https://hackathon-ii-phase-ii-ashy.vercel.app",  # Your Vercel deployment
+    # Add other production URLs explicitly as needed
 ]
 
 app.add_middleware(
@@ -62,36 +61,8 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
-
-# Additional logging for debugging
-@app.middleware("http")
-async def debug_cors(request, call_next):
-    print(f"[CORS DEBUG] Request method: {request.method}")
-    print(f"[CORS DEBUG] Origin: {request.headers.get('origin')}")
-    print(f"[CORS DEBUG] Request URL: {request.url}")
-
-    response = await call_next(request)
-
-    # Ensure CORS headers are set
-    origin = request.headers.get("origin")
-    if origin:
-        print(f"[CORS DEBUG] Setting Access-Control-Allow-Origin to: {origin}")
-        response.headers["Access-Control-Allow-Origin"] = origin
-    else:
-        print(f"[CORS DEBUG] Setting Access-Control-Allow-Origin to: *")
-        response.headers["Access-Control-Allow-Origin"] = "*"
-
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, X-Requested-With"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
-
-    # Handle preflight requests properly
-    if request.method == "OPTIONS":
-        response.status_code = 200
-        print(f"[CORS DEBUG] Handled OPTIONS request")
-
-    return response
 
 # Request logging middleware
 @app.middleware("http")
