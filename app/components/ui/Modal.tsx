@@ -52,7 +52,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl"
+        className="bg-white rounded-lg p-6 max-w-lg w-full mx-4 shadow-xl"
         onClick={(e) => e.stopPropagation()} // Prevent close on content click
       >
         <h2 id="modal-title" className="text-xl font-bold mb-4 text-gray-900">
