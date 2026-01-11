@@ -44,9 +44,6 @@ def get_session():
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# OAuth2 scheme for token authentication
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
-
 # Better-Auth integration
 async def get_current_user(request: Request, session: Session = Depends(get_session)) -> User:
     """
@@ -226,42 +223,8 @@ def create_access_token(data: dict) -> str:
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    session: Session = Depends(get_session)
-) -> User:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-
-    try:
-        print(f"[DEBUG] Attempting to decode token: {token[:20]}...")
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        print(f"[DEBUG] Token payload: {payload}")
-        user_id_str: str = payload.get("sub")
-        print(f"[DEBUG] User ID string from token: {user_id_str}")
-        if user_id_str is None:
-            print("[DEBUG] User ID is None, raising credentials_exception")
-            raise credentials_exception
-        # Convert string user_id back to integer
-        user_id = int(user_id_str)
-        print(f"[DEBUG] Converted user ID: {user_id}")
-    except jwt.PyJWTError as e:
-        print(f"[DEBUG] JWT decode error: {e}")
-        raise credentials_exception
-    except ValueError as e:
-        print(f"[DEBUG] Invalid user ID format: {e}")
-        raise credentials_exception
-
-    user = session.get(User, user_id)
-    print(f"[DEBUG] User from database: {user}")
-    if user is None:
-        print("[DEBUG] User not found in database")
-        raise credentials_exception
-
-    return user
+# Note: JWT-based get_current_user removed - using Better-Auth session-based auth instead
+# The Better-Auth version is defined earlier in the file (around line 49)
 
 # Helper to convert tags
 import json
