@@ -104,11 +104,15 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
           setTitle(e.target.value);
           setError('');
         }}
-        error={error}
         maxLength={200}
         autoComplete="off"
         aria-label="Task title"
       />
+      {error && (
+        <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-sm text-red-600">{error}</p>
+        </div>
+      )}
 
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
