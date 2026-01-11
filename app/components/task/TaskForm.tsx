@@ -95,7 +95,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-3">
       <Input
         label="Task Title *"
         type="text"
@@ -131,7 +131,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1">
             Priority
@@ -140,11 +140,11 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
             id="priority"
             value={priority}
             onChange={(e) => setPriority(e.target.value as Priority)}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-gray-800"
             aria-label="Task priority"
           >
             <option value="low">🟢 Low</option>
-            <option value="medium">🟡 Medium</option>
+            <option value="medium">🟡 Med</option>
             <option value="high">🔴 High</option>
           </select>
         </div>
@@ -158,7 +158,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
             id="dueDate"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-gray-800"
             aria-label="Task due date"
           />
         </div>
@@ -192,7 +192,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
 
         <SlideDown isOpen={enableRecurrence}>
           <div className="space-y-4 mt-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label htmlFor="recurrence-frequency" className="block text-sm font-medium text-gray-700 mb-1">
                   Frequency
@@ -201,12 +201,12 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
                   id="recurrence-frequency"
                   value={recurrenceFrequency}
                   onChange={(e) => setRecurrenceFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-gray-800"
                   aria-label="Recurrence frequency"
                 >
                   <option value="daily">📅 Daily</option>
-                  <option value="weekly">📆 Weekly</option>
-                  <option value="monthly">🗓️ Monthly</option>
+                  <option value="weekly">📆 Wkly</option>
+                  <option value="monthly">🗓️ Mon</option>
                 </select>
               </div>
 
@@ -221,7 +221,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
                   onChange={(e) => setRecurrenceInterval(Math.max(1, parseInt(e.target.value) || 1))}
                   min="1"
                   max="30"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg text-gray-800"
+                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded text-gray-800"
                   aria-label="Recurrence interval"
                 />
               </div>
@@ -239,11 +239,6 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
         </SlideDown>
       </div>
 
-      <div className="pt-4 border-t border-gray-200">
-        <Button type="submit" variant="primary" className="w-full py-3 text-base" disabled={isSubmitting}>
-          {isSubmitting ? 'Adding Task...' : 'Add Task'}
-        </Button>
-      </div>
     </form>
   );
 }

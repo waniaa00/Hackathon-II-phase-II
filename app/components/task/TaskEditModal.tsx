@@ -177,7 +177,7 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
 
           <SlideDown isOpen={enableRecurrence}>
             <div className="space-y-3 mt-2">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label htmlFor="edit-recurrence-frequency" className="block text-sm font-medium text-gray-700 mb-1">
                     Frequency
@@ -186,12 +186,12 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
                     id="edit-recurrence-frequency"
                     value={recurrenceFrequency}
                     onChange={(e) => setRecurrenceFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-gray-800"
                     aria-label="Recurrence frequency"
                   >
                     <option value="daily">📅 Daily</option>
-                    <option value="weekly">📆 Weekly</option>
-                    <option value="monthly">🗓️ Monthly</option>
+                    <option value="weekly">📆 Wkly</option>
+                    <option value="monthly">🗓️ Mon</option>
                   </select>
                 </div>
 
@@ -206,7 +206,7 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
                     onChange={(e) => setRecurrenceInterval(Math.max(1, parseInt(e.target.value) || 1))}
                     min="1"
                     max="30"
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg text-gray-800"
+                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded text-gray-800"
                     aria-label="Recurrence interval"
                   />
                 </div>
@@ -224,7 +224,7 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
           </SlideDown>
         </div>
 
-        <div className="flex gap-3 justify-end pt-5 border-t border-gray-200 mt-4">
+        <div className="flex gap-2 justify-end pt-3 border-t border-gray-200 mt-2">
           <Button
             type="button"
             variant="secondary"
@@ -233,7 +233,7 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
           >
             Cancel
           </Button>
-          <Button type="submit" variant="primary" className="py-3 text-base" disabled={isSubmitting}>
+          <Button type="submit" variant="primary" className="py-2 text-sm" disabled={isSubmitting}>
             {isSubmitting ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
