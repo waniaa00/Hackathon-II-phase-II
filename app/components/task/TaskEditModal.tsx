@@ -13,6 +13,7 @@ import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { useTasks } from '@/app/hooks/useTasks';
 import { RecurrencePreview } from './RecurrencePreview';
+import { SlideDown } from '../ui/SlideDown';
 
 interface TaskEditModalProps {
   task: Task;
@@ -174,7 +175,7 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
             </label>
           </div>
 
-          {enableRecurrence && (
+          <SlideDown isOpen={enableRecurrence}>
             <div className="space-y-3 mt-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
@@ -220,7 +221,7 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
                 </div>
               )}
             </div>
-          )}
+          </SlideDown>
         </div>
 
         <div className="flex gap-2 justify-end">

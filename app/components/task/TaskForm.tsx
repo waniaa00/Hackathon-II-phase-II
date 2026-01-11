@@ -13,6 +13,7 @@ import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { useTasks } from '@/app/hooks/useTasks';
 import { RecurrencePreview } from './RecurrencePreview';
+import { SlideDown } from '../ui/SlideDown';
 
 interface TaskFormProps {
   onSuccess?: () => void;
@@ -183,7 +184,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
           </label>
         </div>
 
-        {enableRecurrence && (
+        <SlideDown isOpen={enableRecurrence}>
           <div className="space-y-3 mt-2">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -229,7 +230,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
               </div>
             )}
           </div>
-        )}
+        </SlideDown>
       </div>
 
       <Button type="submit" variant="primary" className="w-full py-2 text-sm" disabled={isSubmitting}>
