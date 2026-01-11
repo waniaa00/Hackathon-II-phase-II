@@ -52,13 +52,15 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="bg-white rounded-lg p-4 max-w-md w-full mx-4 shadow-xl"
+        className="bg-white rounded-lg p-4 max-w-md w-full mx-4 shadow-xl flex flex-col h-[80vh] max-h-[600px]"
         onClick={(e) => e.stopPropagation()} // Prevent close on content click
       >
-        <h2 id="modal-title" className="text-xl font-bold mb-4 text-gray-900">
+        <h2 id="modal-title" className="text-xl font-bold mb-4 text-gray-900 flex-shrink-0">
           {title}
         </h2>
-        {children}
+        <div className="overflow-y-auto flex-grow pb-4">
+          {children}
+        </div>
       </div>
     </div>,
     document.body

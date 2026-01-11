@@ -224,7 +224,7 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
           </SlideDown>
         </div>
 
-        <div className="flex gap-2 justify-end">
+        <div className="flex gap-2 justify-end pt-4 border-t border-gray-200">
           <Button
             type="button"
             variant="secondary"

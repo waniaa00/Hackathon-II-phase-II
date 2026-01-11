@@ -233,9 +233,11 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
         </SlideDown>
       </div>
 
-      <Button type="submit" variant="primary" className="w-full py-2 text-sm" disabled={isSubmitting}>
-        {isSubmitting ? 'Adding...' : 'Add Task'}
-      </Button>
+      <div className="pt-4 border-t border-gray-200">
+        <Button type="submit" variant="primary" className="w-full py-2 text-sm" disabled={isSubmitting}>
+          {isSubmitting ? 'Adding...' : 'Add Task'}
+        </Button>
+      </div>
     </form>
   );
 }
