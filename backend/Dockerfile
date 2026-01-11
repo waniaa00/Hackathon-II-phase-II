@@ -15,7 +15,7 @@ COPY requirements.txt ./
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy application code (updated: SHA256 password fix)
 COPY . ./
 
 # Create necessary directories
