@@ -36,12 +36,12 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
 export const apiClient = {
   // Auth endpoints - now handled by Better-Auth
   auth: {
-    register: async (data: { email: string; password: string; name: string }) => {
+    register: async (_data: { email: string; password: string; name: string }) => {
       // This should not be called since Better-Auth handles registration
       throw new Error('Use Better-Auth client for registration');
     },
 
-    login: async (data: { email: string; password: string }) => {
+    login: async (_data: { email: string; password: string }) => {
       // This should not be called since Better-Auth handles login
       throw new Error('Use Better-Auth client for login');
     },
