@@ -94,7 +94,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-3">
       <Input
         label="Task Title *"
         type="text"
@@ -109,13 +109,13 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
         aria-label="Task title"
       />
       {error && (
-        <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="mt-1 p-2 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-xs text-red-600">{error}</p>
         </div>
       )}
 
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="description" className="block text-xs font-medium text-gray-700 mb-1">
           Description
         </label>
         <textarea
@@ -124,26 +124,26 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           maxLength={1000}
-          rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-800"
+          rows={2}
+          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent resize-none text-gray-800"
           aria-label="Task description"
         />
       </div>
 
       <div>
-        <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="priority" className="block text-xs font-medium text-gray-700 mb-1">
           Priority
         </label>
         <select
           id="priority"
           value={priority}
           onChange={(e) => setPriority(e.target.value as Priority)}
-          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 font-medium shadow-sm"
+          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-gray-800"
           aria-label="Task priority"
         >
-          <option value="low">🟢 Low Priority</option>
-          <option value="medium">🟡 Medium Priority</option>
-          <option value="high">🔴 High Priority</option>
+          <option value="low">🟢 Low</option>
+          <option value="medium">🟡 Med</option>
+          <option value="high">🔴 High</option>
         </select>
       </div>
 
@@ -155,6 +155,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
         onChange={(e) => setTags(e.target.value)}
         autoComplete="off"
         aria-label="Task tags"
+        className="text-sm py-1.5"
       />
 
       <Input
@@ -163,10 +164,11 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
         value={dueDate}
         onChange={(e) => setDueDate(e.target.value)}
         aria-label="Task due date"
+        className="text-sm py-1.5"
       />
 
       {/* Recurrence Section */}
-      <div className="border-t border-gray-200 pt-4">
+      <div className="border-t border-gray-200 pt-3">
         <div className="flex items-center gap-2 mb-3">
           <input
             type="checkbox"
@@ -192,17 +194,17 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
                   id="recurrence-frequency"
                   value={recurrenceFrequency}
                   onChange={(e) => setRecurrenceFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
-                  className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 font-medium shadow-sm"
+                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-gray-800"
                   aria-label="Recurrence frequency"
                 >
                   <option value="daily">📅 Daily</option>
-                  <option value="weekly">📆 Weekly</option>
-                  <option value="monthly">🗓️ Monthly</option>
+                  <option value="weekly">📆 Wkly</option>
+                  <option value="monthly">🗓️ Mon</option>
                 </select>
               </div>
 
               <div>
-                <label htmlFor="recurrence-interval" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="recurrence-interval" className="block text-xs font-medium text-gray-700 mb-1">
                   Every
                 </label>
                 <input
@@ -212,7 +214,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
                   onChange={(e) => setRecurrenceInterval(Math.max(1, parseInt(e.target.value) || 1))}
                   min="1"
                   max="30"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 font-medium"
+                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded text-gray-800"
                   aria-label="Recurrence interval"
                 />
               </div>
@@ -228,8 +230,8 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
         )}
       </div>
 
-      <Button type="submit" variant="primary" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? 'Adding Task...' : 'Add Task'}
+      <Button type="submit" variant="primary" className="w-full py-2 text-sm" disabled={isSubmitting}>
+        {isSubmitting ? 'Adding...' : 'Add Task'}
       </Button>
     </form>
   );
