@@ -1,6 +1,6 @@
 /**
  * API Client for Backend Communication
- * Handles all HTTP requests to the FastAPI backend
+ * Handles all HTTP requests to the FastAPI backend using Better-Auth sessions
  */
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -10,39 +10,17 @@ interface ApiError {
   detail: string;
 }
 
-// Helper to get auth token from localStorage
-const getToken = (): string | null => {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('auth_token');
-};
-
-// Helper to set auth token
-const setToken = (token: string) => {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem('auth_token', token);
-};
-
-// Helper to clear auth token
-const clearToken = () => {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem('auth_token');
-};
-
-// Helper to make authenticated requests
+// Helper to make authenticated requests using Better-Auth cookies
 async function fetchWithAuth(url: string, options: RequestInit = {}) {
-  const token = getToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string> || {}),
   };
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
   const response = await fetch(url, {
     ...options,
     headers,
+    credentials: 'include', // Include cookies for Better-Auth session
   });
 
   if (!response.ok) {
@@ -56,57 +34,35 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
 }
 
 export const apiClient = {
-  // Auth endpoints
+  // Auth endpoints - now handled by Better-Auth
   auth: {
     register: async (data: { email: string; password: string; name: string }) => {
-      const response = await fetch(`${API_BASE}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-        }),
-      });
-
-      if (!response.ok) {
-        const error: ApiError = await response.json();
-        throw new Error(error.detail || 'Registration failed');
-      }
-
-      const result = await response.json();
-      setToken(result.access_token);
-      return result;
+      // This should not be called since Better-Auth handles registration
+      throw new Error('Use Better-Auth client for registration');
     },
 
     login: async (data: { email: string; password: string }) => {
-      // FastAPI OAuth2 expects form data
-      const formData = new URLSearchParams();
-      formData.append('username', data.email);
-      formData.append('password', data.password);
+      // This should not be called since Better-Auth handles login
+      throw new Error('Use Better-Auth client for login');
+    },
 
-      const response = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: formData,
+    me: async () => {
+      // Use Better-Auth session to get user info
+      const response = await fetch(`${API_BASE}/auth/me`, {
+        credentials: 'include', // Include cookies for Better-Auth session
       });
 
       if (!response.ok) {
         const error: ApiError = await response.json();
-        throw new Error(error.detail || 'Login failed');
+        throw new Error(error.detail || 'Failed to get user info');
       }
 
-      const result = await response.json();
-      setToken(result.access_token);
-      return result;
-    },
-
-    me: async () => {
-      const response = await fetchWithAuth(`${API_BASE}/auth/me`);
       return response.json();
     },
 
-    logout: () => {
-      clearToken();
+    logout: async () => {
+      // This should not be called since Better-Auth handles logout
+      throw new Error('Use Better-Auth client for logout');
     },
   },
 
@@ -187,5 +143,3 @@ export const apiClient = {
     return response.json();
   },
 };
-
-export { setToken, getToken, clearToken };

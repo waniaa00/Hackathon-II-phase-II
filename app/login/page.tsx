@@ -54,13 +54,19 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      await authClient.signIn({
+      const result = await authClient.signIn.email({
         email: formData.email,
         password: formData.password,
       });
 
+      if (result.error) {
+        setErrors({ password: result.error.message || 'Login failed. Please try again.' });
+        setIsLoading(false);
+        return;
+      }
+
       // Redirect to dashboard after successful login
-      router.push('/dashboard');
+      router.push('/todos');
     } catch (error: any) {
       setErrors({ password: error.message || 'Login failed. Please try again.' });
       setIsLoading(false);

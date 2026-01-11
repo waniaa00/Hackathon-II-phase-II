@@ -73,14 +73,20 @@ export default function SignupPage() {
     setIsLoading(true);
 
     try {
-      await authClient.signUp({
+      const result = await authClient.signUp.email({
         email: formData.email,
         password: formData.password,
         name: formData.name,
       });
 
+      if (result.error) {
+        setErrors({ email: result.error.message || 'Signup failed. Please try again.' });
+        setIsLoading(false);
+        return;
+      }
+
       // Redirect to dashboard after successful signup
-      router.push('/dashboard');
+      router.push('/todos');
     } catch (error: any) {
       setErrors({ email: error.message || 'Signup failed. Please try again.' });
       setIsLoading(false);
