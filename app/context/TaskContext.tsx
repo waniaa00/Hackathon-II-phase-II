@@ -31,7 +31,21 @@ const TaskContext = createContext<TaskContextValue | undefined>(undefined);
  * Wraps the application and provides task state to all child components
  */
 export function TaskProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(taskReducer, INITIAL_STATE);
+  // Start with empty tasks if authenticated, otherwise show demo tasks
+  const getInitialState = () => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    if (token) {
+      // User is logged in - start with empty tasks, will load from API
+      return {
+        ...INITIAL_STATE,
+        tasks: [],
+      };
+    }
+    // Not logged in - show demo tasks
+    return INITIAL_STATE;
+  };
+
+  const [state, dispatch] = useReducer(taskReducer, getInitialState());
 
   // Function to load tasks from API
   const loadTasks = async () => {
@@ -41,6 +55,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Failed to load tasks:', error);
       // Continue with empty state if API fails
+      dispatch({ type: 'LOAD_TASKS', payload: { tasks: [] } });
     }
   };
 
