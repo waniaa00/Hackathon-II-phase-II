@@ -169,7 +169,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
 
       {/* Recurrence Section */}
       <div className="border-t border-gray-200 pt-3">
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-2 mb-2">
           <input
             type="checkbox"
             id="enable-recurrence"
@@ -184,8 +184,8 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
         </div>
 
         {enableRecurrence && (
-          <div className="space-y-3 pl-6">
-            <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-3 mt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label htmlFor="recurrence-frequency" className="block text-sm font-medium text-gray-700 mb-1">
                   Frequency
@@ -221,10 +221,12 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
             </div>
 
             {dueDate && (
-              <RecurrencePreview
-                startDate={dueDate}
-                recurrence={{ frequency: recurrenceFrequency, interval: recurrenceInterval }}
-              />
+              <div className="mt-2">
+                <RecurrencePreview
+                  startDate={dueDate}
+                  recurrence={{ frequency: recurrenceFrequency, interval: recurrenceInterval }}
+                />
+              </div>
             )}
           </div>
         )}

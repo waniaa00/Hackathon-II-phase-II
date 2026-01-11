@@ -159,8 +159,8 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
         />
 
         {/* Recurrence Section */}
-        <div className="border-t border-gray-200 pt-4">
-          <div className="flex items-center gap-2 mb-3">
+        <div className="border-t border-gray-200 pt-3">
+          <div className="flex items-center gap-2 mb-2">
             <input
               type="checkbox"
               id="edit-enable-recurrence"
@@ -175,8 +175,8 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
           </div>
 
           {enableRecurrence && (
-            <div className="space-y-3 pl-6">
-              <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-3 mt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label htmlFor="edit-recurrence-frequency" className="block text-sm font-medium text-gray-700 mb-1">
                     Frequency
@@ -185,17 +185,17 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
                     id="edit-recurrence-frequency"
                     value={recurrenceFrequency}
                     onChange={(e) => setRecurrenceFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 font-medium shadow-sm"
+                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-gray-800"
                     aria-label="Recurrence frequency"
                   >
                     <option value="daily">📅 Daily</option>
-                    <option value="weekly">📆 Weekly</option>
-                    <option value="monthly">🗓️ Monthly</option>
+                    <option value="weekly">📆 Wkly</option>
+                    <option value="monthly">🗓️ Mon</option>
                   </select>
                 </div>
 
                 <div>
-                  <label htmlFor="edit-recurrence-interval" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="edit-recurrence-interval" className="block text-xs font-medium text-gray-700 mb-1">
                     Every
                   </label>
                   <input
@@ -205,17 +205,19 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
                     onChange={(e) => setRecurrenceInterval(Math.max(1, parseInt(e.target.value) || 1))}
                     min="1"
                     max="30"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 font-medium"
+                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded text-gray-800"
                     aria-label="Recurrence interval"
                   />
                 </div>
               </div>
 
               {dueDate && (
-                <RecurrencePreview
-                  startDate={dueDate}
-                  recurrence={{ frequency: recurrenceFrequency, interval: recurrenceInterval }}
-                />
+                <div className="mt-2">
+                  <RecurrencePreview
+                    startDate={dueDate}
+                    recurrence={{ frequency: recurrenceFrequency, interval: recurrenceInterval }}
+                  />
+                </div>
               )}
             </div>
           )}
