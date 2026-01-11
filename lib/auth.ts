@@ -31,12 +31,6 @@ export const auth = betterAuth({
   socialProviders: {
     // Can add OAuth providers later (Google, GitHub, etc.)
   },
-  advanced: {
-    generateId: () => {
-      // Use timestamp-based IDs
-      return Date.now().toString();
-    },
-  },
 });
 
 export type Session = typeof auth.$Infer.Session;
