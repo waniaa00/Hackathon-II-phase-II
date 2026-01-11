@@ -95,7 +95,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <Input
         label="Task Title *"
         type="text"
@@ -116,7 +116,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
       )}
 
       <div>
-        <label htmlFor="description" className="block text-xs font-medium text-gray-700 mb-1">
+        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
           Description
         </label>
         <textarea
@@ -126,26 +126,42 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
           onChange={(e) => setDescription(e.target.value)}
           maxLength={1000}
           rows={2}
-          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent resize-none text-gray-800"
+          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-800"
           aria-label="Task description"
         />
       </div>
 
-      <div>
-        <label htmlFor="priority" className="block text-xs font-medium text-gray-700 mb-1">
-          Priority
-        </label>
-        <select
-          id="priority"
-          value={priority}
-          onChange={(e) => setPriority(e.target.value as Priority)}
-          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-gray-800"
-          aria-label="Task priority"
-        >
-          <option value="low">🟢 Low</option>
-          <option value="medium">🟡 Med</option>
-          <option value="high">🔴 High</option>
-        </select>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1">
+            Priority
+          </label>
+          <select
+            id="priority"
+            value={priority}
+            onChange={(e) => setPriority(e.target.value as Priority)}
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+            aria-label="Task priority"
+          >
+            <option value="low">🟢 Low</option>
+            <option value="medium">🟡 Medium</option>
+            <option value="high">🔴 High</option>
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 mb-1">
+            Due Date
+          </label>
+          <input
+            type="date"
+            id="dueDate"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+            aria-label="Task due date"
+          />
+        </div>
       </div>
 
       <Input
@@ -156,21 +172,11 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
         onChange={(e) => setTags(e.target.value)}
         autoComplete="off"
         aria-label="Task tags"
-        className="text-sm py-1.5"
-      />
-
-      <Input
-        label="Due Date"
-        type="date"
-        value={dueDate}
-        onChange={(e) => setDueDate(e.target.value)}
-        aria-label="Task due date"
-        className="text-sm py-1.5"
       />
 
       {/* Recurrence Section */}
-      <div className="border-t border-gray-200 pt-3">
-        <div className="flex items-center gap-2 mb-2">
+      <div className="border-t border-gray-200 pt-4">
+        <div className="flex items-center gap-2 mb-3">
           <input
             type="checkbox"
             id="enable-recurrence"
@@ -185,8 +191,8 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
         </div>
 
         <SlideDown isOpen={enableRecurrence}>
-          <div className="space-y-3 mt-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-4 mt-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="recurrence-frequency" className="block text-sm font-medium text-gray-700 mb-1">
                   Frequency
@@ -195,17 +201,17 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
                   id="recurrence-frequency"
                   value={recurrenceFrequency}
                   onChange={(e) => setRecurrenceFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
-                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-gray-800"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
                   aria-label="Recurrence frequency"
                 >
                   <option value="daily">📅 Daily</option>
-                  <option value="weekly">📆 Wkly</option>
-                  <option value="monthly">🗓️ Mon</option>
+                  <option value="weekly">📆 Weekly</option>
+                  <option value="monthly">🗓️ Monthly</option>
                 </select>
               </div>
 
               <div>
-                <label htmlFor="recurrence-interval" className="block text-xs font-medium text-gray-700 mb-1">
+                <label htmlFor="recurrence-interval" className="block text-sm font-medium text-gray-700 mb-1">
                   Every
                 </label>
                 <input
@@ -215,14 +221,14 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
                   onChange={(e) => setRecurrenceInterval(Math.max(1, parseInt(e.target.value) || 1))}
                   min="1"
                   max="30"
-                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded text-gray-800"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg text-gray-800"
                   aria-label="Recurrence interval"
                 />
               </div>
             </div>
 
             {dueDate && (
-              <div className="mt-2">
+              <div className="mt-3">
                 <RecurrencePreview
                   startDate={dueDate}
                   recurrence={{ frequency: recurrenceFrequency, interval: recurrenceInterval }}
@@ -234,8 +240,8 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
       </div>
 
       <div className="pt-4 border-t border-gray-200">
-        <Button type="submit" variant="primary" className="w-full py-2 text-sm" disabled={isSubmitting}>
-          {isSubmitting ? 'Adding...' : 'Add Task'}
+        <Button type="submit" variant="primary" className="w-full py-3 text-base" disabled={isSubmitting}>
+          {isSubmitting ? 'Adding Task...' : 'Add Task'}
         </Button>
       </div>
     </form>
