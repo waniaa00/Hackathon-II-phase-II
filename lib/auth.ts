@@ -20,6 +20,8 @@ export const auth = betterAuth({
     type: "postgres",
     pool: pool as any,
   },
+  baseURL: process.env.BETTER_AUTH_URL || process.env.NEXTAUTH_URL || "http://localhost:3000",
+  secret: process.env.BETTER_AUTH_SECRET || process.env.NEXTAUTH_SECRET || "your-secret-key-change-in-production-min-32-chars-long",
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false, // Disable for demo
