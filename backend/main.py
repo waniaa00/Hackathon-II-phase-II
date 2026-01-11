@@ -48,7 +48,7 @@ async def get_current_user(request: Request) -> dict:
     Get current user from Better-Auth session
     In a real implementation, this would validate the session with Better-Auth API
     """
-    import json
+    import httpx
 
     # Check for Better-Auth session cookie
     session_token = request.cookies.get("__Secure-authjs.session-token")
@@ -66,12 +66,13 @@ async def get_current_user(request: Request) -> dict:
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # In a real implementation, you'd call the Better-Auth API to validate the session
-    # For this demo, we'll create a mock user based on the session token
-    # In production, you'd make an HTTP request to the Better-Auth session endpoint
-
+    # In a real implementation, call the Better-Auth API to validate the session
+    # For this demo, we'll use the session token to look up user info in our database
     # For now, return a mock user - in a real app, this would come from Better-Auth validation
-    # The session token would be validated against Better-Auth API
+
+    # For the purpose of this integration, we'll create a simple mapping
+    # In real production, you'd validate with Better-Auth's API
+    # This is a simplified approach for demonstration purposes
     return {"id": "1", "email": "user@example.com"}  # Mock user for now
 
 # FastAPI app
