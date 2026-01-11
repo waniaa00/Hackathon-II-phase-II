@@ -243,27 +243,38 @@ def test_token():
 # Auth endpoints
 @app.post("/api/v1/auth/register", response_model=Token)
 def register(user_data: UserRegister, session: Session = Depends(get_session)):
-    # Check if user exists
-    statement = select(User).where(User.email == user_data.email)
-    existing_user = session.exec(statement).first()
+    try:
+        # Check if user exists
+        statement = select(User).where(User.email == user_data.email)
+        existing_user = session.exec(statement).first()
 
-    if existing_user:
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
+
+        # Create new user
+        hashed_password = get_password_hash(user_data.password)
+        new_user = User(email=user_data.email, hashed_password=hashed_password)
+        session.add(new_user)
+        session.commit()
+        session.refresh(new_user)
+
+        # Create access token (convert user_id to string for JWT)
+        access_token = create_access_token(data={"sub": str(new_user.id)})
+
+        return {"access_token": access_token, "token_type": "bearer"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[ERROR] Registration failed: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Registration failed: {str(e)}"
         )
-
-    # Create new user
-    hashed_password = get_password_hash(user_data.password)
-    new_user = User(email=user_data.email, hashed_password=hashed_password)
-    session.add(new_user)
-    session.commit()
-    session.refresh(new_user)
-
-    # Create access token (convert user_id to string for JWT)
-    access_token = create_access_token(data={"sub": str(new_user.id)})
-
-    return {"access_token": access_token, "token_type": "bearer"}
 
 @app.post("/api/v1/auth/login", response_model=Token)
 def login(
