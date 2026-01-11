@@ -58,7 +58,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
         <h2 id="modal-title" className="text-xl font-bold mb-4 text-gray-900 flex-shrink-0 border-b border-gray-100 pb-3">
           {title}
         </h2>
-        <div className="overflow-y-auto flex-grow pb-2">
+        <div className="overflow-y-auto flex-grow pb-2 max-h-[55vh]">
           {children}
         </div>
       </div>
