@@ -13,4 +13,10 @@
 import { auth } from "@/lib/auth-server"
 
 // Create handlers for Next.js App Router
-export const { GET, POST } = auth
+export const GET = async (request: Request) => {
+  return auth.handler(request);
+};
+
+export const POST = async (request: Request) => {
+  return auth.handler(request);
+};

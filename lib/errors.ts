@@ -34,18 +34,19 @@ export function normalizeAuthError(error: unknown): string {
   }
 
   // Handle specific error codes/statuses
-  if (typeof error === 'object') {
-    const statusCode = error.status || error.statusCode || error.code;
+  if (typeof error === 'object' && error !== null) {
+    const errorObj = error as any;
+    const statusCode = errorObj.status || errorObj.statusCode || errorObj.code;
 
     // Network errors
-    if (error.type === 'network_error' || error.name === 'TypeError') {
+    if (errorObj.type === 'network_error' || errorObj.name === 'TypeError') {
       return AuthErrorMessages.NETWORK_ERROR;
     }
 
     // Authentication-specific errors
     switch (statusCode) {
       case 400:
-        if (error.message?.includes('already exists')) {
+        if (errorObj.message?.includes('already exists')) {
           return AuthErrorMessages.EMAIL_ALREADY_EXISTS;
         }
         return AuthErrorMessages.INVALID_CREDENTIALS;
@@ -63,8 +64,8 @@ export function normalizeAuthError(error: unknown): string {
 
       default:
         // Check for specific error messages
-        if (error.message) {
-          const message = error.message.toLowerCase();
+        if (errorObj.message) {
+          const message = errorObj.message.toLowerCase();
 
           if (message.includes('email') && message.includes('already') && message.includes('exists')) {
             return AuthErrorMessages.EMAIL_ALREADY_EXISTS;
@@ -101,8 +102,9 @@ export function normalizeTodoError(error: unknown): string {
   }
 
   // Handle specific error codes/statuses
-  if (typeof error === 'object') {
-    const statusCode = error.status || error.statusCode || error.code;
+  if (typeof error === 'object' && error !== null) {
+    const errorObj = error as any;
+    const statusCode = errorObj.status || errorObj.statusCode || errorObj.code;
 
     switch (statusCode) {
       case 401:
@@ -121,8 +123,8 @@ export function normalizeTodoError(error: unknown): string {
 
       default:
         // Check for specific error messages
-        if (error.message) {
-          const message = error.message.toLowerCase();
+        if (errorObj.message) {
+          const message = errorObj.message.toLowerCase();
 
           if (message.includes('not found')) {
             return TodoErrorMessages.NOT_FOUND;
@@ -149,6 +151,6 @@ export function normalizeError(error: unknown, context: 'auth' | 'todo' | 'gener
       return normalizeTodoError(error);
     default:
       // For general errors, return a generic message
-      return error?.message || 'An unexpected error occurred. Please try again.';
+      return (error as any)?.message || 'An unexpected error occurred. Please try again.';
   }
 }

@@ -17,7 +17,7 @@ interface AuthContextType {
     id: string;
     email: string;
     name?: string;
-    image?: string;
+    image?: string | null;
     emailVerified?: boolean;
   } | null // Better-Auth user object or null if not authenticated
   isLoading: boolean // Whether session is being loaded
@@ -35,7 +35,8 @@ interface AuthProviderProps {
 // AuthProvider component that manages authentication state
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Use Better-Auth's useSession hook to get session data
-  const { data: session, isLoading } = useSession()
+  const { data: session, isPending } = useSession()
+  const isLoading = isPending;
 
   // Determine authentication status
   const isAuthenticated = !!session?.user

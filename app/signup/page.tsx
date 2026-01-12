@@ -78,11 +78,11 @@ export default function SignupPage() {
 
     try {
       // T025: Connect to Better-Auth signup
-      await signUp.email({
-        email,
-        password,
-        name: name || undefined,
-      })
+      const signupData: any = { email, password };
+      if (name.trim()) {
+        signupData.name = name.trim();
+      }
+      await signUp.email(signupData)
 
       // T027: Redirect to dashboard after successful signup
       router.push('/dashboard')

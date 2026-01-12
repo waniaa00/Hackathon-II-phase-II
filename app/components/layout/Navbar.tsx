@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Logo } from './Logo';
@@ -13,7 +13,7 @@ export function Navbar({ currentPath }: NavbarProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   // Use the new Better-Auth session hook
-  const { data: session, isLoading } = useSession();
+  const { data: session } = useSession();
   const user = session?.user || null;
 
   const navLinks = [
