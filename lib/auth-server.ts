@@ -6,15 +6,24 @@
  */
 
 import { betterAuth } from "better-auth"
-import { Pool } from "pg"
+import { Pool } from "@neondatabase/serverless"
 
-// Database connection pool for Better-Auth
+// Verify environment variables
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL environment variable is not set")
+}
+
+if (!process.env.BETTER_AUTH_SECRET) {
+  throw new Error("BETTER_AUTH_SECRET environment variable is not set")
+}
+
+if (!process.env.BETTER_AUTH_URL) {
+  throw new Error("BETTER_AUTH_URL environment variable is not set")
+}
+
+// Database connection pool for Better-Auth (Neon serverless)
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  // Connection pool configuration for serverless (Neon PostgreSQL)
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
 })
 
 /**
@@ -35,39 +44,21 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
-    // Password requirements enforced by Better-Auth:
-    // - Minimum 8 characters
-    // - Must contain uppercase letter
-    // - Must contain digit
   },
 
   // Session configuration
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days (in seconds)
     updateAge: 60 * 60 * 24, // Update session every 24 hours (in seconds)
-    cookieCache: {
-      enabled: true,
-      maxAge: 60 * 5, // 5 minutes cache
-    },
   },
 
   // Security configuration
-  secret: process.env.BETTER_AUTH_SECRET!,
-  baseURL: process.env.BETTER_AUTH_URL!,
+  secret: process.env.BETTER_AUTH_SECRET,
+  baseURL: process.env.BETTER_AUTH_URL,
 
   // Trusted origins for CORS
   trustedOrigins: [
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
+    "https://hackathon-ii-phase-ii-ashy.vercel.app",
     "http://localhost:3000",
-    "http://localhost:3001",
   ],
-
-  // Advanced configuration
-  advanced: {
-    // Cookie settings
-    cookiePrefix: "better-auth",
-    // Secure cookies in production
-    useSecureCookies: process.env.NODE_ENV === "production",
-  },
 })
-
