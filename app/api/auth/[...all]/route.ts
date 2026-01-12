@@ -12,6 +12,5 @@
 
 import { auth } from "@/lib/auth-server"
 
-// Export GET and POST handlers from Better-Auth
-// Better-Auth handles routing to specific endpoints based on the path
-export const { GET, POST } = auth.handler
+// Create handlers for Next.js App Router
+export const { GET, POST } = auth
