@@ -1,39 +1,18 @@
 "use client"
 
-/**
- * User Login Page - Better-Auth Integration
- *
- * Tasks implemented: T031-T038, T080, T092, T095
- * - T031: Login page with form
- * - T032: Form state management
- * - T033: Client-side validation
- * - T034: Loading indicator
- * - T035: Better-Auth signIn connection
- * - T036: Error handling for invalid credentials
- * - T037: Error handling for service unavailability
- * - T038: Redirect to dashboard
- * - T080: Redirect to /dashboard if already authenticated
- * - T092: Use normalized error messages from lib/errors.ts
- * - T095: Use ErrorAlert component for displaying error messages
- */
-
 import { useState, FormEvent, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { signIn } from '@/lib/auth'
 import { useAuth } from '@/context/AuthContext'
 import { normalizeError } from '@/lib/errors'
-import { ErrorAlert } from '@/components/ui/ErrorAlert'
 import Link from 'next/link'
 
 export default function LoginPage() {
-  // T032: Form state management
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-
-  // T080: Check if user is already authenticated
   const { isAuthenticated, isLoading } = useAuth()
 
   useEffect(() => {
@@ -42,149 +21,139 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, isLoading, router])
 
-  // T033: Client-side validation
-  const validateEmail = (email: string): string | null => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!email) return 'Email is required'
-    if (!emailRegex.test(email)) return 'Invalid email format'
-    return null
-  }
-
-  const validatePassword = (password: string): string | null => {
-    if (!password) return 'Password is required'
-    return null
-  }
-
-  // T035-T038: Form submission with Better-Auth, error handling, redirect
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
 
-    // Validate before submission
-    const emailError = validateEmail(email)
-    const passwordError = validatePassword(password)
-
-    if (emailError || passwordError) {
-      setError(emailError || passwordError || '')
+    if (!email || !password) {
+      setError('Please fill in all fields')
       return
     }
 
-    setLoading(true) // T034: Loading indicator
+    setLoading(true)
 
     try {
-      // T035: Connect to Better-Auth sign in
       await signIn.email({
         email,
         password,
         callbackURL: '/dashboard',
       })
-
-      // T038: Redirect to dashboard after successful login
       router.push('/dashboard')
     } catch (err: unknown) {
       setLoading(false)
-
-      // T092: Use normalized error messages
       const normalizedError = normalizeError(err, 'auth')
       setError(normalizedError)
     }
   }
 
-  // T080: Don't render form if loading or already authenticated
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="text-lg">Checking authentication...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
       </div>
     )
   }
 
-  if (isAuthenticated) {
-    return null // Redirect effect will handle navigation
-  }
+  if (isAuthenticated) return null
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500">
-              create a new account
-            </Link>
-          </p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 py-12">
+      <div className="w-full max-w-md">
+        {/* Logo/Brand */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl mb-4 shadow-lg">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h1>
+          <p className="text-gray-600">Sign in to continue to your tasks</p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {/* T095: Use ErrorAlert component for displaying error messages */}
-          {error && <ErrorAlert message={error} variant="error" />}
+        {/* Login Form */}
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+              </div>
+            )}
 
-          <div className="rounded-md shadow-sm space-y-4">
-            {/* Email field with validation */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address *
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value)
-                  setError('')
-                }}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="you@example.com"
-              />
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  Email address
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value)
+                    setError('')
+                  }}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none"
+                  placeholder="you@example.com"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value)
+                    setError('')
+                  }}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none"
+                  placeholder="••••••••"
+                />
+              </div>
             </div>
 
-            {/* Password field with validation */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password *
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value)
-                  setError('')
-                }}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Enter your password"
-              />
-            </div>
-          </div>
-
-          {/* T034: Submit button with loading state */}
-          <div>
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 shadow-lg hover:shadow-xl"
             >
               {loading ? (
-                <>
+                <span className="flex items-center justify-center">
                   <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   Signing in...
-                </>
+                </span>
               ) : (
                 'Sign in'
               )}
             </button>
-          </div>
-        </form>
+          </form>
+        </div>
+
+        {/* Sign up link */}
+        <p className="text-center mt-6 text-gray-600">
+          Don&apos;t have an account?{' '}
+          <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500 transition duration-200">
+            Sign up
+          </Link>
+        </p>
       </div>
     </div>
   )
