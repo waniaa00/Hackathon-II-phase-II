@@ -6,32 +6,38 @@
  */
 
 import { betterAuth } from "better-auth"
-import { Pool, neonConfig } from "@neondatabase/serverless"
-import ws from "ws"
+import { Pool } from "@neondatabase/serverless"
 
-// Configure Neon for serverless environments (Vercel Edge)
-if (typeof process !== 'undefined' && !process.env.VERCEL_ENV) {
-  // Local development - use WebSocket polyfill
-  neonConfig.webSocketConstructor = ws
-}
-
-// Verify environment variables
+// Verify environment variables with detailed error messages
 if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is not set")
+  console.error('[Better-Auth] DATABASE_URL is missing')
+  throw new Error("DATABASE_URL environment variable is not set. Please add it to your Vercel environment variables.")
 }
 
 if (!process.env.BETTER_AUTH_SECRET) {
-  throw new Error("BETTER_AUTH_SECRET environment variable is not set")
+  console.error('[Better-Auth] BETTER_AUTH_SECRET is missing')
+  throw new Error("BETTER_AUTH_SECRET environment variable is not set. Please add it to your Vercel environment variables.")
 }
 
 if (!process.env.BETTER_AUTH_URL) {
-  throw new Error("BETTER_AUTH_URL environment variable is not set")
+  console.error('[Better-Auth] BETTER_AUTH_URL is missing')
+  throw new Error("BETTER_AUTH_URL environment variable is not set. Please add it to your Vercel environment variables.")
 }
 
+console.log('[Better-Auth] Initializing with Neon PostgreSQL...')
+console.log('[Better-Auth] Base URL:', process.env.BETTER_AUTH_URL)
+
 // Database connection pool for Better-Auth (Neon serverless)
-// Note: Neon uses WebSockets for connections in serverless environments
+// Neon serverless driver uses WebSockets automatically
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+})
+
+// Test database connection
+pool.query('SELECT NOW()').then(() => {
+  console.log('[Better-Auth] Database connection successful')
+}).catch((error) => {
+  console.error('[Better-Auth] Database connection failed:', error)
 })
 
 /**
@@ -45,7 +51,7 @@ const pool = new Pool({
  * - Secure cookie configuration (HTTP-only, Secure in production)
  */
 export const auth = betterAuth({
-  // Database adapter - Better-Auth uses this to store users and sessions
+  // Database - Pass the connection string directly for better compatibility
   database: pool,
 
   // Email and password authentication provider
