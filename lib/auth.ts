@@ -14,9 +14,12 @@ import { createAuthClient } from "better-auth/react"
  * - Session cookies (HTTP-only)
  * - Token management
  * - Authentication state
+ *
+ * Note: baseURL is set to current origin for same-origin requests.
+ * This ensures the client makes requests to the Next.js API routes.
  */
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL || process.env.BETTER_AUTH_URL,
+  baseURL: typeof window !== 'undefined' ? window.location.origin : undefined,
 })
 
 // Export authentication methods and hooks

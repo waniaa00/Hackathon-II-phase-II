@@ -9,15 +9,19 @@ This error occurs when the Better-Auth server configuration is not properly set 
 Go to your Vercel project settings and ensure these environment variables are set:
 
 ```env
-# Required for Better-Auth
+# Required for Better-Auth Server
 BETTER_AUTH_SECRET=<your-secret-key-at-least-32-characters>
 BETTER_AUTH_URL=https://hackathon-ii-phase-ii-ashy.vercel.app
 DATABASE_URL=<your-neon-postgresql-connection-string>
 
-# Required for frontend
-NEXT_PUBLIC_API_URL=https://hackathon-ii-phase-ii.onrender.com
+# Required for Better-Auth Client (frontend)
 NEXT_PUBLIC_BETTER_AUTH_URL=https://hackathon-ii-phase-ii-ashy.vercel.app
+
+# Required for API calls
+NEXT_PUBLIC_API_URL=https://hackathon-ii-phase-ii.onrender.com
 ```
+
+**IMPORTANT**: Both `BETTER_AUTH_URL` (server) and `NEXT_PUBLIC_BETTER_AUTH_URL` (client) must be set to the same value (your Vercel deployment URL).
 
 **Generate a secure secret:**
 ```bash

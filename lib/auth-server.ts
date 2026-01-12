@@ -6,7 +6,14 @@
  */
 
 import { betterAuth } from "better-auth"
-import { Pool } from "@neondatabase/serverless"
+import { Pool, neonConfig } from "@neondatabase/serverless"
+import ws from "ws"
+
+// Configure Neon for serverless environments (Vercel Edge)
+if (typeof process !== 'undefined' && !process.env.VERCEL_ENV) {
+  // Local development - use WebSocket polyfill
+  neonConfig.webSocketConstructor = ws
+}
 
 // Verify environment variables
 if (!process.env.DATABASE_URL) {
@@ -22,6 +29,7 @@ if (!process.env.BETTER_AUTH_URL) {
 }
 
 // Database connection pool for Better-Auth (Neon serverless)
+// Note: Neon uses WebSockets for connections in serverless environments
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 })
