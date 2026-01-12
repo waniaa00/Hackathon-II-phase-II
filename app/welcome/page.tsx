@@ -100,7 +100,7 @@ export default function WelcomePage() {
                 <div className="text-4xl mb-4">📊</div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Dashboard</h3>
                 <p className="text-gray-600">
-                  Track your progress with metrics and today's focus view
+                  Track your progress with metrics and today&apos;s focus view
                 </p>
               </div>
             </div>

@@ -1,159 +1,191 @@
-'use client'
+"use client"
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Input } from '@/app/components/ui/Input';
-import { Button } from '@/app/components/ui/Button';
-import { Logo } from '@/app/components/layout/Logo';
-import { Footer } from '@/app/components/layout/Footer';
-import { authClient } from '@/lib/auth-client';
+/**
+ * User Login Page - Better-Auth Integration
+ *
+ * Tasks implemented: T031-T038, T080, T092, T095
+ * - T031: Login page with form
+ * - T032: Form state management
+ * - T033: Client-side validation
+ * - T034: Loading indicator
+ * - T035: Better-Auth signIn connection
+ * - T036: Error handling for invalid credentials
+ * - T037: Error handling for service unavailability
+ * - T038: Redirect to dashboard
+ * - T080: Redirect to /dashboard if already authenticated
+ * - T092: Use normalized error messages from lib/errors.ts
+ * - T095: Use ErrorAlert component for displaying error messages
+ */
+
+import { useState, FormEvent, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { signIn } from '@/lib/auth'
+import { useAuth } from '@/context/AuthContext'
+import { normalizeError } from '@/lib/errors'
+import { ErrorAlert } from '@/components/ui/ErrorAlert'
+import Link from 'next/link'
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  const [isLoading, setIsLoading] = useState(false);
+  // T032: Form state management
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    // Clear error when user types
-    if (errors[name as keyof typeof errors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+  // T080: Check if user is already authenticated
+  const { isAuthenticated, isLoading } = useAuth()
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.push('/dashboard')
     }
-  };
+  }, [isAuthenticated, isLoading, router])
 
-  const validate = () => {
-    const newErrors: { email?: string; password?: string } = {};
+  // T033: Client-side validation
+  const validateEmail = (email: string): string | null => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!email) return 'Email is required'
+    if (!emailRegex.test(email)) return 'Invalid email format'
+    return null
+  }
 
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
+  const validatePassword = (password: string): string | null => {
+    if (!password) return 'Password is required'
+    return null
+  }
+
+  // T035-T038: Form submission with Better-Auth, error handling, redirect
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setError('')
+
+    // Validate before submission
+    const emailError = validateEmail(email)
+    const passwordError = validatePassword(password)
+
+    if (emailError || passwordError) {
+      setError(emailError || passwordError || '')
+      return
     }
 
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validate()) return;
-
-    setIsLoading(true);
+    setLoading(true) // T034: Loading indicator
 
     try {
-      const result = await authClient.signIn.email({
-        email: formData.email,
-        password: formData.password,
-      });
+      // T035: Connect to Better-Auth sign in
+      await signIn.email({
+        email,
+        password,
+        callbackURL: '/dashboard',
+      })
 
-      if (result.error) {
-        setErrors({ password: result.error.message || 'Login failed. Please try again.' });
-        setIsLoading(false);
-        return;
-      }
+      // T038: Redirect to dashboard after successful login
+      router.push('/dashboard')
+    } catch (err: unknown) {
+      setLoading(false)
 
-      // Redirect to dashboard after successful login
-      router.push('/todos');
-    } catch (error: any) {
-      setErrors({ password: error.message || 'Login failed. Please try again.' });
-      setIsLoading(false);
+      // T092: Use normalized error messages
+      const normalizedError = normalizeError(err, 'auth')
+      setError(normalizedError)
     }
-  };
+  }
+
+  // T080: Don't render form if loading or already authenticated
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="text-lg">Checking authentication...</div>
+      </div>
+    )
+  }
+
+  if (isAuthenticated) {
+    return null // Redirect effect will handle navigation
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex flex-col">
-      <div className="flex-1 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <Logo size="large" />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Sign in to your account
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Or{' '}
+            <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500">
+              create a new account
+            </Link>
+          </p>
         </div>
 
-        {/* Login Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">Welcome Back</h1>
-          <p className="text-gray-600 mb-8 text-center">Sign in to manage your tasks</p>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {/* T095: Use ErrorAlert component for displaying error messages */}
+          {error && <ErrorAlert message={error} variant="error" />}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <Input
-              label="Email"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              error={errors.email}
-              placeholder="you@example.com"
-            />
-
-            <Input
-              label="Password"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              error={errors.password}
-              placeholder="••••••••"
-            />
-
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 text-gray-700">
-                <input type="checkbox" className="rounded border-gray-300" />
-                Remember me
+          <div className="rounded-md shadow-sm space-y-4">
+            {/* Email field with validation */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email address *
               </label>
-              <Link href="#" className="text-blue-600 hover:text-blue-700 font-medium">
-                Forgot password?
-              </Link>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  setError('')
+                }}
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="you@example.com"
+              />
             </div>
 
-            <Button
+            {/* Password field with validation */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password *
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  setError('')
+                }}
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Enter your password"
+              />
+            </div>
+          </div>
+
+          {/* T034: Submit button with loading state */}
+          <div>
+            <button
               type="submit"
-              variant="primary"
-              size="lg"
-              className="w-full"
-              disabled={isLoading}
+              disabled={loading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Signing in...' : 'Sign In'}
-            </Button>
-          </form>
-
-          <div className="mt-6 text-center text-gray-600">
-            Don't have an account?{' '}
-            <Link href="/signup" className="text-blue-600 hover:text-blue-700 font-semibold">
-              Sign up
-            </Link>
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Signing in...
+                </>
+              ) : (
+                'Sign in'
+              )}
+            </button>
           </div>
-
-          {/* Demo Note */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-sm text-blue-800 text-center">
-              <strong>Demo Mode:</strong> Use any email/password. Data stored in browser localStorage.
-            </p>
-          </div>
-        </div>
-
-        {/* Quick Access */}
-        <div className="mt-6 text-center">
-          <Link href="/todos" className="text-gray-600 hover:text-gray-800 text-sm underline">
-            Skip to app
-          </Link>
-        </div>
+        </form>
       </div>
-      </div>
-
-      <Footer />
     </div>
-  );
+  )
 }

@@ -1,203 +1,215 @@
-'use client'
+"use client"
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Input } from '@/app/components/ui/Input';
-import { Button } from '@/app/components/ui/Button';
-import { Logo } from '@/app/components/layout/Logo';
-import { Footer } from '@/app/components/layout/Footer';
-import { authClient } from '@/lib/auth-client';
+/**
+ * User Registration Page - Better-Auth Integration
+ *
+ * Tasks implemented: T019-T027, T081, T093, T095
+ * - T019: Signup page with form
+ * - T020: Better-Auth client integration
+ * - T021: Form state management
+ * - T022: Client-side validation
+ * - T023: Inline error display
+ * - T024: Loading indicator
+ * - T025: Better-Auth signUp connection
+ * - T026: Error handling for duplicate email
+ * - T027: Redirect to dashboard
+ * - T081: Redirect to /dashboard if already authenticated
+ * - T093: Use normalized error messages from lib/errors.ts
+ * - T095: Use ErrorAlert component for displaying error messages
+ */
+
+import { useState, FormEvent, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { signUp } from '@/lib/auth'
+import { useAuth } from '@/context/AuthContext'
+import { normalizeError } from '@/lib/errors'
+import { ErrorAlert } from '@/components/ui/ErrorAlert'
+import Link from 'next/link'
 
 export default function SignupPage() {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
-  const [errors, setErrors] = useState<{
-    name?: string;
-    email?: string;
-    password?: string;
-    confirmPassword?: string;
-  }>({});
-  const [isLoading, setIsLoading] = useState(false);
+  // T021: Form state management
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [name, setName] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    // Clear error when user types
-    if (errors[name as keyof typeof errors]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+  // T081: Check if user is already authenticated
+  const { isAuthenticated, isLoading } = useAuth()
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.push('/dashboard')
     }
-  };
+  }, [isAuthenticated, isLoading, router])
 
-  const validate = () => {
-    const newErrors: typeof errors = {};
+  // T022: Client-side validation
+  const validateEmail = (email: string): string | null => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!email) return 'Email is required'
+    if (!emailRegex.test(email)) return 'Invalid email format'
+    return null
+  }
 
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'Name must be at least 2 characters';
-    }
+  const validatePassword = (password: string): string | null => {
+    if (!password) return 'Password is required'
+    if (password.length < 8) return 'Password must be at least 8 characters'
+    if (!/[A-Z]/.test(password)) return 'Password must contain an uppercase letter'
+    if (!/[0-9]/.test(password)) return 'Password must contain a digit'
+    return null
+  }
 
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
-    }
+  // T025-T027: Form submission with Better-Auth, error handling, redirect
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setError('')
 
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
+    // Validate before submission
+    const emailError = validateEmail(email)
+    const passwordError = validatePassword(password)
 
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+    if (emailError || passwordError) {
+      setError(emailError || passwordError || '')
+      return
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validate()) return;
-
-    setIsLoading(true);
+    setLoading(true) // T024: Loading indicator
 
     try {
-      const result = await authClient.signUp.email({
-        email: formData.email,
-        password: formData.password,
-        name: formData.name,
-      });
+      // T025: Connect to Better-Auth signup
+      await signUp.email({
+        email,
+        password,
+        name: name || undefined,
+      })
 
-      if (result.error) {
-        setErrors({ email: result.error.message || 'Signup failed. Please try again.' });
-        setIsLoading(false);
-        return;
-      }
+      // T027: Redirect to dashboard after successful signup
+      router.push('/dashboard')
+    } catch (err: unknown) {
+      setLoading(false)
 
-      // Redirect to dashboard after successful signup
-      router.push('/todos');
-    } catch (error: any) {
-      setErrors({ email: error.message || 'Signup failed. Please try again.' });
-      setIsLoading(false);
+      // T093: Use normalized error messages
+      const normalizedError = normalizeError(err, 'auth')
+      setError(normalizedError)
     }
-  };
+  }
+
+  // T081: Don't render form if loading or already authenticated
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="text-lg">Checking authentication...</div>
+      </div>
+    )
+  }
+
+  if (isAuthenticated) {
+    return null // Redirect effect will handle navigation
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex flex-col">
-      <div className="flex-1 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <Logo size="large" />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Create your account
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Or{' '}
+            <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+              sign in to your existing account
+            </Link>
+          </p>
         </div>
 
-        {/* Signup Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2 text-center">Create Account</h1>
-          <p className="text-gray-600 mb-8 text-center">Join us to organize your tasks</p>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {/* T095: Use ErrorAlert component for displaying error messages */}
+          {error && <ErrorAlert message={error} variant="error" />}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <Input
-              label="Full Name"
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              error={errors.name}
-              placeholder="John Doe"
-            />
-
-            <Input
-              label="Email"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              error={errors.email}
-              placeholder="you@example.com"
-            />
-
-            <Input
-              label="Password"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              error={errors.password}
-              placeholder="••••••••"
-            />
-
-            <Input
-              label="Confirm Password"
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              error={errors.confirmPassword}
-              placeholder="••••••••"
-            />
-
-            <div className="flex items-start gap-2 text-sm">
-              <input type="checkbox" required className="mt-1 rounded border-gray-300" />
-              <label className="text-gray-700">
-                I agree to the{' '}
-                <Link href="#" className="text-blue-600 hover:text-blue-700 font-medium">
-                  Terms of Service
-                </Link>{' '}
-                and{' '}
-                <Link href="#" className="text-blue-600 hover:text-blue-700 font-medium">
-                  Privacy Policy
-                </Link>
+          <div className="rounded-md shadow-sm space-y-4">
+            {/* Name field (optional) */}
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                Name (optional)
               </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="John Doe"
+              />
             </div>
 
-            <Button
+            {/* Email field with validation */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email address *
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  setError('')
+                }}
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="you@example.com"
+              />
+            </div>
+
+            {/* Password field with validation */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password *
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  setError('')
+                }}
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Minimum 8 characters, uppercase, digit"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Must be at least 8 characters with uppercase letter and digit
+              </p>
+            </div>
+          </div>
+
+          {/* T024: Submit button with loading state */}
+          <div>
+            <button
               type="submit"
-              variant="primary"
-              size="lg"
-              className="w-full"
-              disabled={isLoading}
+              disabled={loading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Creating account...' : 'Create Account'}
-            </Button>
-          </form>
-
-          <div className="mt-6 text-center text-gray-600">
-            Already have an account?{' '}
-            <Link href="/login" className="text-blue-600 hover:text-blue-700 font-semibold">
-              Sign in
-            </Link>
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Creating account...
+                </>
+              ) : (
+                'Create account'
+              )}
+            </button>
           </div>
-
-          {/* Demo Note */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-sm text-blue-800 text-center">
-              <strong>Demo Mode:</strong> Create an account. Data stored in browser localStorage.
-            </p>
-          </div>
-        </div>
-
-        {/* Quick Access */}
-        <div className="mt-6 text-center">
-          <Link href="/todos" className="text-gray-600 hover:text-gray-800 text-sm underline">
-            Skip to app
-          </Link>
-        </div>
+        </form>
       </div>
-      </div>
-
-      <Footer />
     </div>
-  );
+  )
 }

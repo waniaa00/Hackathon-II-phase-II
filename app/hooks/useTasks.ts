@@ -32,7 +32,7 @@ export function useTasks() {
       await loadTasks();
 
       return newTask;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to add task:', error);
       throw error;
     }
@@ -41,7 +41,18 @@ export function useTasks() {
   const updateTask = async (id: string, updates: Partial<Task>) => {
     try {
       // Map frontend field names to backend expected names
-      const apiData: any = {};
+      const apiData: {
+        title?: string;
+        description?: string;
+        priority?: string;
+        completed?: boolean;
+        due_date?: string;
+        tags?: string[];
+        recurrence?: {
+          frequency: string;
+          interval: number;
+        };
+      } = {};
       if (updates.title !== undefined) apiData.title = updates.title;
       if (updates.description !== undefined) apiData.description = updates.description;
       if (updates.priority !== undefined) apiData.priority = updates.priority;
@@ -59,7 +70,7 @@ export function useTasks() {
 
       // Reload tasks to get the latest from server
       await loadTasks();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to update task:', error);
       throw error;
     }
@@ -71,7 +82,7 @@ export function useTasks() {
 
       // Reload tasks to get the latest from server
       await loadTasks();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to delete task:', error);
       throw error;
     }

@@ -37,12 +37,12 @@ export const apiClient = {
   // Auth endpoints - now handled by Better-Auth
   auth: {
     register: async (_data: { email: string; password: string; name: string }) => {
-      // This should not be called since Better-Auth handles registration
+      // Intentionally unused parameter - Better-Auth handles registration
       throw new Error('Use Better-Auth client for registration');
     },
 
     login: async (_data: { email: string; password: string }) => {
-      // This should not be called since Better-Auth handles login
+      // Intentionally unused parameter - Better-Auth handles login
       throw new Error('Use Better-Auth client for login');
     },
 

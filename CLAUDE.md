@@ -1,14 +1,16 @@
-# Agent Context for Frontend-Backend Integration
+# Agent Context for Better-Auth Authentication Integration
 
-This file provides additional context for the agent regarding frontend-backend integration capabilities in the TASKIFY todo app.
+This file provides additional context for the agent regarding Better-Auth authentication integration in the TASKIFY todo app.
 
 ## New Capabilities/Technologies
 
-### Frontend-Backend Integration with Authentication UI
+### Better-Auth Integration for Authentication & Authorization
 
-**Feature**: 006-frontend-backend-integration
-**Status**: Planning Complete
-**Tech Stack**: Next.js 14+, React 18+, TypeScript 5+, FastAPI 0.104+, Better-Auth 1.1+, Python 3.11+
+**Feature**: 001-better-auth-integration
+**Status**: Planning Complete (Phase 0 & Phase 1 artifacts generated)
+**Branch**: 001-better-auth-integration
+**Constitution**: v3.0.0 (expanded to include backend services)
+**Tech Stack**: Next.js 14+, React 18+, TypeScript 5+, FastAPI 0.104+, Better-Auth 1.1+, Python 3.11+, Neon PostgreSQL
 
 #### Authentication UI Components
 
@@ -165,14 +167,201 @@ All patterns derived from Context7 MCP documentation:
 - TypeScript: Type safety, interfaces, generics
 - MDN: Fetch API, security best practices
 
+#### Planning Artifacts Generated
+
+All planning phase artifacts have been completed and are located in `specs/001-better-auth-integration/`:
+
+1. **plan.md** - Implementation plan with constitutional compliance verification
+   - Status: ✅ Approved under constitution v3.0.0
+   - Technical context documented
+   - All gates passing (documentation sources, scope, technology, quality)
+   - Implementation priorities defined (P1/P2)
+   - Security checklist included
+
+2. **research.md** - Documentation research findings (Phase 0)
+   - Better-Auth integration patterns for Next.js App Router and FastAPI
+   - Neon PostgreSQL connection configuration with SQLModel
+   - Session management and security best practices
+   - Protected API route patterns with FastAPI dependencies
+   - CORS configuration for credentials
+   - Database schema requirements
+
+3. **data-model.md** - Entity definitions and relationships (Phase 1)
+   - User entity (Better-Auth managed)
+   - Session entity (Better-Auth managed)
+   - Todo entity (application managed, enhanced with user_id FK)
+   - Entity relationship diagram
+   - Database schema (SQL)
+   - API request/response models
+   - Data validation rules
+   - Migration strategies
+
+4. **contracts/auth-contract.ts** - Authentication API contract (Phase 1)
+   - Signup, login, logout, session endpoints
+   - Request/response TypeScript interfaces
+   - Error response schemas
+   - Security notes and patterns
+   - API client interface for frontend
+
+5. **contracts/todo-contract.ts** - Todo API contract with authorization (Phase 1)
+   - CRUD endpoints with user-scoped access
+   - Query parameters for filtering/pagination
+   - Authorization enforcement patterns
+   - Ownership verification logic
+   - User isolation guarantees
+
+6. **quickstart.md** - Setup and usage guide (Phase 1)
+   - Environment setup instructions
+   - Database configuration (Neon PostgreSQL)
+   - Backend setup (FastAPI + Better-Auth)
+   - Frontend setup (Next.js + Better-Auth client)
+   - Testing authentication flows
+   - Common issues and solutions
+   - API usage examples
+
+#### Key Implementation Patterns
+
+**Better-Auth Client Configuration** (`lib/auth.ts`):
+```typescript
+import { createAuthClient } from "better-auth/react"
+
+export const authClient = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+})
+
+export const { signIn, signUp, signOut, useSession } = authClient
+```
+
+**Better-Auth Server Configuration** (`lib/auth-server.ts`):
+```typescript
+import { betterAuth } from "better-auth"
+import { Pool } from "pg"
+
+export const auth = betterAuth({
+  database: new Pool({ connectionString: process.env.DATABASE_URL }),
+  emailAndPassword: { enabled: true, minPasswordLength: 8 },
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // Update every 24 hours
+  },
+  secret: process.env.BETTER_AUTH_SECRET!,
+  baseURL: process.env.BETTER_AUTH_URL!,
+})
+```
+
+**FastAPI Session Validation Dependency** (`backend/dependencies/auth.py`):
+```python
+from fastapi import Depends, HTTPException, status, Request
+
+async def get_current_user(request: Request) -> dict:
+    session_token = request.cookies.get("better-auth.session_token")
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    # Validate session from database
+    # Return user_id for authorization
+    return {"user_id": validated_user_id}
+```
+
+**Protected Todo Endpoint** (`backend/routers/todos.py`):
+```python
+@router.get("/todos")
+async def get_todos(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    user_id = current_user["user_id"]
+    todos = db.query(Todo).filter(Todo.user_id == user_id).all()
+    return todos
+```
+
+**CORS Configuration for Credentials** (`backend/main.py`):
+```python
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://hackathon-ii-phase-ii-ashy.vercel.app",
+        "http://localhost:3000",
+    ],
+    allow_credentials=True,  # CRITICAL for session cookies
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+#### Database Schema
+
+**Better-Auth Managed Tables** (auto-created):
+- `user` - User accounts (id, email, email_verified, name, created_at, updated_at)
+- `session` - Authentication sessions (id, user_id, token, expires_at, ip_address, user_agent)
+- `account` - OAuth provider accounts (if OAuth enabled)
+- `verification` - Email verification tokens
+
+**Application Tables**:
+- `todo` - User todos with authorization (id, user_id FK, title, description, status, priority, due_date, tags, is_recurring, frequency, interval, created_at, updated_at)
+
+**Key Indexes**:
+- `idx_session_token` on `session.token` (for session validation)
+- `idx_todo_user_id` on `todo.user_id` (for user-scoped queries)
+- `idx_todo_user_status` on `(todo.user_id, todo.status)` (for filtered queries)
+
+#### Security Model
+
+**Session Security**:
+- HTTP-only cookies (XSS protection)
+- Secure flag in production (HTTPS only)
+- SameSite=Lax (CSRF protection)
+- 7-day expiration with 24-hour renewal
+- Cryptographically secure tokens
+
+**Authorization Enforcement**:
+- All todo endpoints use `get_current_user` dependency
+- Database queries ALWAYS filtered by `user_id`
+- Ownership verified before update/delete operations
+- Returns 403 Forbidden for cross-user access attempts
+- Foreign key constraints enforce referential integrity
+
+**Input Validation**:
+- Client-side validation (email format, password strength)
+- Server-side validation (Pydantic models)
+- SQL injection prevention (SQLModel ORM with parameterized queries)
+- Generic error messages (no user enumeration)
+
+#### Environment Configuration
+
+**Frontend** (`.env.local`):
+```env
+NEXT_PUBLIC_API_URL=https://hackathon-ii-phase-ii.onrender.com
+BETTER_AUTH_URL=https://hackathon-ii-phase-ii-ashy.vercel.app
+BETTER_AUTH_SECRET=<secret>
+DATABASE_URL=<neon-postgresql-connection-string>
+```
+
+**Backend** (`.env`):
+```env
+DATABASE_URL=<neon-postgresql-connection-string>
+FRONTEND_URL=https://hackathon-ii-phase-ii-ashy.vercel.app
+PORT=8000
+```
+
 #### Implementation Status
 
-- ✅ Planning Complete (plan.md, research.md, data-model.md, contracts/, quickstart.md)
-- ⏳ Tasks Generation Pending (/sp.tasks command)
-- ⏳ Implementation Pending (will follow tasks.md in priority order P1→P2→P3→P4)
+- ✅ **Phase 0 Complete**: Research documentation (research.md)
+- ✅ **Phase 1 Complete**: Design artifacts (data-model.md, contracts/, quickstart.md)
+- ✅ **Planning Approved**: Constitution v3.0.0 compliant, all gates passing
+- ⏳ **Phase 2 Pending**: Task generation (`/sp.tasks` command)
+- ⏳ **Implementation Pending**: Will follow tasks.md in priority order (P1→P2)
+
+#### Next Steps
+
+1. Execute `/sp.tasks` command to generate implementation tasks
+2. Implement tasks in priority order:
+   - **P1 Tasks**: Database setup, backend auth config, session validation, frontend UI, auth context, protected routes, authorization enforcement
+   - **P2 Tasks**: Logout functionality, auth state display, session expiration handling, error messaging
+3. Test each component incrementally
+4. Deploy to staging/production
 
 #### Related Features
 
-- **Depends On**: 005-backend-api-integration (FastAPI backend, Better-Auth)
-- **Extends**: Builds upon existing frontend structure with authentication
-- **Integration**: Seamless - adds auth layer to existing todo functionality
+- **Constitutional Change**: Constitution v2.0.0 → v3.0.0 (MAJOR) to allow backend services
+- **Database**: Neon PostgreSQL already provisioned and configured
+- **Deployment**: Frontend on Vercel, backend on Render (already configured)

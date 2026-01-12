@@ -5,23 +5,26 @@ Provides REST API endpoints for authentication and todo management
 
 from __future__ import annotations
 
-from fastapi import FastAPI, Depends, HTTPException, status, Response, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from sqlmodel import Session, SQLModel, create_engine, select
 from datetime import datetime, timedelta
 from typing import Optional, List
+import hashlib
+import json
 import os
+
+from dotenv import load_dotenv
+from fastapi import FastAPI, Depends, HTTPException, status, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 import jwt
-from dotenv import load_dotenv
-import hashlib
+from pydantic import BaseModel, EmailStr
+from sqlmodel import Field, Relationship, Session, SQLModel, create_engine, select
+
+from backend.dependencies import get_current_user
+from backend.utils.errors import NOT_AUTHENTICATED_ERROR, NOT_FOUND_ERROR
 
 # Load environment variables from .env file
 load_dotenv()
-
-# Models
-from pydantic import BaseModel, EmailStr
 
 # Environment variables
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./test.db")
@@ -37,66 +40,16 @@ engine = create_engine(DATABASE_URL, echo=True, connect_args=connect_args)
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
+
 def get_session():
     with Session(engine) as session:
         yield session
 
+
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Better-Auth integration
-async def get_current_user(request: Request, session: Session = Depends(get_session)) -> User:
-    """
-    Get current user from Better-Auth session by validating with our database
-    This creates a mapping between Better-Auth sessions and our user records
-    """
-    import uuid
 
-    # In a real Better-Auth integration, we would validate the session with Better-Auth API
-    # For now, we'll simulate this by checking if user is authenticated
-    # In practice, you'd call Better-Auth's session validation endpoint
-
-    # Check for Better-Auth session cookie
-    session_cookie = request.cookies.get("__Secure-authjs.session-token")
-    if not session_cookie:
-        # Try alternative cookie names
-        for cookie_name in ["authjs.session-token", "better-auth.session-token"]:
-            session_cookie = request.cookies.get(cookie_name)
-            if session_cookie:
-                break
-
-    if not session_cookie:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    # For this implementation, we'll map the session to a user in our database
-    # In a real implementation, you'd validate the session with Better-Auth API
-    # and then look up the corresponding user in your database
-
-    # For now, we'll look for a user in our database
-    # Since we need to properly associate users, we'll need a way to link Better-Auth sessions
-    # to our user records. This would normally be done during registration/login
-
-    # For demonstration purposes, let's query for a user with a known email
-    # In a real system, you'd have stored the Better-Auth user ID and mapped it to your local user
-    statement = select(User).where(User.email == "user@example.com")
-    user = session.exec(statement).first()
-
-    if not user:
-        # If the default user doesn't exist, create one for testing
-        # In a real system, you'd have proper user linking
-        user = User(
-            email="user@example.com",
-            hashed_password=get_password_hash("default_password")
-        )
-        session.add(user)
-        session.commit()
-        session.refresh(user)
-
-    return user
 
 # FastAPI app
 app = FastAPI(
@@ -119,16 +72,23 @@ app.add_middleware(
     expose_headers=["*"],
 )
 
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Request logging middleware
 @app.middleware("http")
 async def log_requests(request, call_next):
-    print(f"\n[REQUEST] {request.method} {request.url.path}")
-    print(f"[HEADERS] Authorization: {request.headers.get('authorization', 'NOT FOUND')}")
+    logger.info(f"Request: {request.method} {request.url.path}")
+    logger.debug(f"Headers: {request.headers}")
     response = await call_next(request)
+    logger.info(f"Response status: {response.status_code}")
     return response
 
+
 # Database Models (using SQLModel)
-from sqlmodel import Field, Relationship
 
 class User(SQLModel, table=True):
     __tablename__ = "users"
@@ -226,13 +186,13 @@ def create_access_token(data: dict) -> str:
 # Note: JWT-based get_current_user removed - using Better-Auth session-based auth instead
 # The Better-Auth version is defined earlier in the file (around line 49)
 
+
 # Helper to convert tags
-import json
 
 def tags_to_list(tags_str: str) -> List[str]:
     try:
         return json.loads(tags_str)
-    except:
+    except Exception:
         return []
 
 def list_to_tags(tags_list: List[str]) -> str:
@@ -243,7 +203,7 @@ def recurrence_to_dict(recurrence_str: Optional[str]) -> Optional[dict]:
         return None
     try:
         return json.loads(recurrence_str)
-    except:
+    except Exception:
         return None
 
 def dict_to_recurrence(recurrence_dict: Optional[dict]) -> Optional[str]:
@@ -302,24 +262,35 @@ def login(
     )
 
 @app.get("/api/v1/auth/me", response_model=UserResponse)
-async def get_current_user_info(request: Request, session: Session = Depends(get_session)):
-    current_user = await get_current_user(request, session)
+async def get_current_user_info(
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+    # Get the actual user from our database using the user_id from the session
+    user_id = current_user["user_id"]
+    user = session.get(User, user_id)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=NOT_FOUND_ERROR.detail
+        )
 
     # Return user info in the expected format
     return UserResponse(
-        id=current_user.id,
-        email=current_user.email,
-        created_at=current_user.created_at
+        id=user.id,
+        email=user.email,
+        created_at=user.created_at
     )
 
 # Todo endpoints
 @app.get("/api/v1/todos", response_model=List[TodoResponse])
 async def get_todos(
-    request: Request,
+    current_user: dict = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
-    current_user = await get_current_user(request, session)
-    user_id = current_user.id
+    user_id = current_user["user_id"]
 
     statement = select(Todo).where(Todo.user_id == user_id)
     todos = session.exec(statement).all()
@@ -342,14 +313,44 @@ async def get_todos(
 
     return response_todos
 
-@app.post("/api/v1/todos", response_model=TodoResponse)
-async def create_todo(
-    request: Request,
-    todo_data: TodoCreate,
+
+@app.get("/api/v1/todos/{todo_id}", response_model=TodoResponse)
+async def get_todo_by_id(
+    todo_id: int,
+    current_user: dict = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
-    current_user = await get_current_user(request, session)
-    user_id = current_user.id
+    user_id = current_user["user_id"]
+
+    # Get todo
+    todo = session.get(Todo, todo_id)
+
+    if not todo or todo.user_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=NOT_FOUND_ERROR.detail
+        )
+
+    return TodoResponse(
+        id=todo.id,
+        title=todo.title,
+        description=todo.description,
+        completed=todo.completed,
+        priority=todo.priority,
+        dueDate=todo.due_date,
+        tags=tags_to_list(todo.tags),
+        recurrence=recurrence_to_dict(todo.recurrence),
+        createdAt=todo.created_at,
+        updatedAt=todo.updated_at
+    )
+
+@app.post("/api/v1/todos", response_model=TodoResponse)
+async def create_todo(
+    todo_data: TodoCreate,
+    current_user: dict = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+    user_id = current_user["user_id"]
 
     # Create new todo
     new_todo = Todo(
@@ -382,13 +383,12 @@ async def create_todo(
 
 @app.patch("/api/v1/todos/{todo_id}", response_model=TodoResponse)
 async def update_todo(
-    request: Request,
     todo_id: int,
     todo_data: TodoUpdate,
+    current_user: dict = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
-    current_user = await get_current_user(request, session)
-    user_id = current_user.id
+    user_id = current_user["user_id"]
 
     # Get todo
     todo = session.get(Todo, todo_id)
@@ -396,7 +396,7 @@ async def update_todo(
     if not todo or todo.user_id != user_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Todo not found"
+            detail=NOT_FOUND_ERROR.detail
         )
 
     # Update fields
@@ -436,12 +436,11 @@ async def update_todo(
 
 @app.delete("/api/v1/todos/{todo_id}")
 async def delete_todo(
-    request: Request,
     todo_id: int,
+    current_user: dict = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
-    current_user = await get_current_user(request, session)
-    user_id = current_user.id
+    user_id = current_user["user_id"]
 
     # Get todo
     todo = session.get(Todo, todo_id)
@@ -449,7 +448,7 @@ async def delete_todo(
     if not todo or todo.user_id != user_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Todo not found"
+            detail=NOT_FOUND_ERROR.detail
         )
 
     session.delete(todo)

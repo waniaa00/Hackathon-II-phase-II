@@ -15,7 +15,7 @@ export function TodaysFocus({ tasks }: TodaysFocusProps) {
     <div className="bg-white p-6 rounded-xl shadow-xl border border-gray-100">
       <div className="flex items-center gap-2 mb-5">
         <span className="text-2xl">🎯</span>
-        <h2 className="text-2xl font-bold text-gray-800">Today's Focus</h2>
+        <h2 className="text-2xl font-bold text-gray-800">Today&apos;s Focus</h2>
       </div>
 
       {tasks.length === 0 ? (

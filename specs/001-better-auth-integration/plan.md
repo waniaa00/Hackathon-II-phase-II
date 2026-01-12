@@ -2,187 +2,174 @@
 
 **Branch**: `001-better-auth-integration` | **Date**: 2026-01-12 | **Spec**: [spec.md](spec.md)
 **Input**: Feature specification from `/specs/001-better-auth-integration/spec.md`
-
-**⚠️ CRITICAL CONSTITUTIONAL VIOLATION DETECTED ⚠️**
+**Status**: ✅ **APPROVED - Constitution v3.0.0 Compliant**
 
 ## Summary
 
-This feature requests integration of Better-Auth authentication with backend (FastAPI) and frontend (Next.js), including:
+This feature integrates Better-Auth authentication with backend (FastAPI) and frontend (Next.js), including:
 - User registration and login flows
 - Session management and persistence
 - Protected routes and authorization
 - Database integration with Neon PostgreSQL
 - User-scoped todo access
 
-**HOWEVER**: This directly violates the project constitution (version 2.0.0, Section 1).
+**Constitution Status**: Approved under constitution v3.0.0 which expanded scope to include backend services, APIs, authentication, and database integration.
 
-## Constitutional Conflict Analysis
+## Constitutional Compliance
 
-### Constitution States (v2.0.0, Section 1)
+### Constitution v3.0.0 (Amended 2026-01-12)
 
-**Explicitly Out of Scope:**
-- Backend services ❌
-- APIs ❌
-- Authentication ❌
-- Server-side persistence ❌
-- Database or cloud integrations ❌
+The constitution was amended from v2.0.0 → v3.0.0 (MAJOR version bump) to expand project scope from "Frontend Only" to "Full-Stack Application".
 
-**In Scope:**
+**Now In Scope (Added in v3.0.0):**
+- Backend services & APIs ✅
+- Authentication & authorization ✅
+- Server-side persistence ✅
+- Database design & management ✅
+- RESTful API endpoints ✅
+- Session management ✅
+- User data isolation ✅
+
+**Frontend (Existing):**
 - Frontend UI & UX ✅
 - Client-side state management ✅
-- Mock data & UI logic ✅
 - Responsive, accessible design ✅
 
-### Feature Spec Requests
+**Technology Stack (Added in v3.0.0):**
+- **Backend Framework**: FastAPI ✅
+- **Backend Language**: Python 3.11+ ✅
+- **Database**: PostgreSQL (Neon-hosted) ✅
+- **ORM**: SQLModel ✅
+- **Authentication**: Better-Auth ✅
+- **Session Storage**: PostgreSQL (via Better-Auth) ✅
 
-The specification requires:
-1. **Backend authentication** (FastAPI + Better-Auth) - ❌ **OUT OF SCOPE**
-2. **Database integration** (Neon PostgreSQL) - ❌ **OUT OF SCOPE**
-3. **API endpoints** (auth, session, todos) - ❌ **OUT OF SCOPE**
-4. **Server-side sessions** - ❌ **OUT OF SCOPE**
+### Feature Requirements vs Constitution
+
+All feature requirements are now constitutionally compliant:
+1. **Backend authentication** (FastAPI + Better-Auth) - ✅ **IN SCOPE (v3.0.0)**
+2. **Database integration** (Neon PostgreSQL) - ✅ **IN SCOPE (v3.0.0)**
+3. **API endpoints** (auth, session, todos) - ✅ **IN SCOPE (v3.0.0)**
+4. **Server-side sessions** - ✅ **IN SCOPE (v3.0.0)**
 5. **Frontend auth UI** (login, signup pages) - ✅ **IN SCOPE**
 6. **Protected route guards** (client-side) - ✅ **IN SCOPE**
 7. **Auth state management** (React Context) - ✅ **IN SCOPE**
 
-### Violation Assessment
+## Technical Context
 
-**Severity**: **CRITICAL** - The feature fundamentally requires backend services, which are constitutionally forbidden.
+**Language/Version**:
+- Frontend: TypeScript 5+
+- Backend: Python 3.11+
 
-**Options**:
-
-1. **Option A: Amend Constitution** (Recommended)
-   - Update constitution v2.0.0 → v3.0.0 (MAJOR version bump)
-   - Add "Backend Services" to "In Scope"
-   - Add authentication, APIs, database to allowed scope
-   - Update all dependent templates
-   - Requires explicit approval and migration plan
-   - **Then proceed with this plan**
-
-2. **Option B: Reframe as Frontend-Only Mock Auth**
-   - Remove all backend/API/database requirements
-   - Implement mock authentication (localStorage-based)
-   - Simulate login/logout flows without server
-   - Implement client-side "session" simulation
-   - Keep UI patterns backend-integration ready
-   - **Complies with constitution but doesn't meet original feature intent**
-
-3. **Option C: Reject Feature**
-   - Feature is constitutionally invalid
-   - Return to specification phase
-   - Redesign within constitutional boundaries
-   - **Blocks progress on this feature**
-
-## ⚠️ GATE FAILURE: Planning Cannot Proceed
-
-Per `.specify/templates/commands/plan.md`:
-> **Constitution Check**: *GATE: Must pass before Phase 0 research*
-
-This feature **FAILS** the constitutional gate because it requires backend services explicitly excluded by the constitution.
-
-### Required Actions Before Proceeding
-
-**Choice 1: Amend Constitution** (if backend integration is desired):
-1. Create constitutional amendment proposal
-2. Document rationale for scope expansion
-3. Update version 2.0.0 → 3.0.0
-4. Update dependent templates
-5. Get explicit approval
-6. **Then resume `/sp.plan`**
-
-**Choice 2: Redesign Feature** (to comply with constitution):
-1. Remove all backend/API/database requirements from spec
-2. Redesign as mock authentication with localStorage
-3. Update spec.md to reflect frontend-only approach
-4. **Then resume `/sp.plan`**
-
-## Technical Context (Conditional - depends on constitutional resolution)
-
-**If Option A (Amend Constitution) is chosen:**
-
-**Language/Version**: TypeScript 5+, Python 3.11+
 **Primary Dependencies**:
-- Frontend: Next.js 14+, React 18+, Better-Auth client 1.1+
-- Backend: FastAPI 0.104+, Better-Auth 1.1+, SQLModel, Neon PostgreSQL
-**Storage**: Neon PostgreSQL (for users, sessions, todos)
-**Testing**: Jest/React Testing Library (frontend), pytest (backend)
-**Target Platform**: Web (Next.js) + REST API (FastAPI)
-**Project Type**: Web application (frontend + backend)
+- Frontend: Next.js 14+ (App Router), React 18+, Better-Auth client 1.1+, TanStack Query
+- Backend: FastAPI 0.104+, Better-Auth 1.1+, SQLModel 0.0.14+, psycopg2-binary
+
+**Database**:
+- Provider: Neon PostgreSQL (serverless)
+- Connection: Already configured via DATABASE_URL environment variable
+- Tables: Users, sessions, todos (Better-Auth managed + application tables)
+
+**Authentication**:
+- Library: Better-Auth 1.1+
+- Session Storage: PostgreSQL via Better-Auth
+- Session Duration: 7 days with daily update age
+- Token Storage: HTTP-only secure cookies
+
+**Testing**:
+- Frontend: Jest, React Testing Library
+- Backend: pytest, httpx (async client)
+
+**Target Platform**: Full-stack web application
+- Frontend: Vercel (already deployed)
+- Backend: Render (already deployed)
+
+**Project Type**: Multi-user web application with authentication
+
 **Performance Goals**:
-- Login/signup < 10 seconds
-- Session validation < 100ms
-- Todo queries < 200ms
+- Login/signup: < 10 seconds
+- Session validation: < 100ms
+- Todo queries: < 200ms
+- Page load: < 3 seconds
+
 **Constraints**:
-- HTTPS required for secure cookies
+- HTTPS required for secure cookies (production)
 - 7-day session persistence
-- 100% authorization enforcement
+- 100% authorization enforcement on all todo endpoints
+- CORS configured for specific origins only
+- User data isolation enforced at database query level
+
 **Scale/Scope**:
 - Multi-user system
-- 40 functional requirements
-- 6 user stories
+- 40 functional requirements (FR-001 to FR-040)
+- 6 user stories (P1/P2 prioritized)
+- 10 measurable success criteria
 - Backend + Frontend integration
-
-**If Option B (Mock Auth) is chosen:**
-
-**Language/Version**: TypeScript 5+
-**Primary Dependencies**: Next.js 14+, React 18+, localStorage API
-**Storage**: Browser localStorage (mock sessions)
-**Testing**: Jest, React Testing Library
-**Target Platform**: Web (client-side only)
-**Project Type**: Single-page application (frontend only)
-**Performance Goals**: Instant auth state changes (no network)
-**Constraints**: No server-side validation, mock data only
-**Scale/Scope**: Single-user demonstration, UI patterns only
+- Full security implementation
 
 ## Constitution Check
 
 ### Gates
 
 **Gate 1: Authoritative Documentation Sources**
-- **Status**: ⚠️ **CONDITIONAL PASS**
-- **If backend allowed**: Must use Context7 MCP for Better-Auth, FastAPI, PostgreSQL docs
-- **If frontend only**: Must use Context7 MCP for Next.js, React, Browser APIs only
-- **Current Plan**: Pending constitutional decision
+- **Status**: ✅ **PASS**
+- **Required Sources**: Context7 MCP for Better-Auth, FastAPI, PostgreSQL, SQLModel, Next.js, React
+- **Plan**: All implementation patterns will be derived from official documentation via Context7 MCP
+- **Documentation Priority**:
+  1. Better-Auth official docs (authentication patterns)
+  2. FastAPI docs (API design, dependencies)
+  3. SQLModel docs (ORM patterns)
+  4. Neon PostgreSQL docs (connection, pooling)
+  5. Next.js App Router docs (routing, middleware)
+  6. React docs (Context API, hooks)
 
 **Gate 2: Scope Compliance**
-- **Status**: ❌ **FAILED**
-- **Violation**: Feature spec requests backend services (authentication, APIs, database)
-- **Constitution**: "Explicitly Out of Scope: Backend services, APIs, Authentication, Server-side persistence, Database"
-- **Blocker**: **YES** - Cannot proceed with Phase 0 research until resolved
+- **Status**: ✅ **PASS**
+- **Constitution Version**: v3.0.0 (amended 2026-01-12)
+- **Feature Requirements**: Backend authentication, APIs, database, frontend UI
+- **Constitution Scope**: Now includes backend services, APIs, authentication, database, frontend
+- **Compliance**: All requirements are constitutionally valid under v3.0.0
 
 **Gate 3: Technology Constraints**
-- **Status**: ⚠️ **CONDITIONAL PASS**
-- **Frontend**: Next.js App Router ✅, TypeScript ✅, React ✅, Tailwind CSS ✅
-- **Backend**: Not addressed in current constitution (v2.0.0 is frontend-only)
-- **Current Plan**: Pending constitutional decision
+- **Status**: ✅ **PASS**
+- **Frontend Stack**: Next.js 14+ App Router ✅, TypeScript 5+ ✅, React 18+ ✅, Tailwind CSS ✅
+- **Backend Stack**: FastAPI ✅, Python 3.11+ ✅, SQLModel ✅, PostgreSQL ✅, Better-Auth ✅
+- **All Technologies**: Explicitly approved in constitution v3.0.0 § 3 (Frontend) and § 13-15 (Backend)
 
 **Gate 4: Quality Standards**
-- **Status**: ⚠️ **PENDING**
-- **Cannot evaluate**: Until scope conflict is resolved
-- **Will require**: Documentation-first correctness, spec-driven development
+- **Status**: ✅ **PASS**
+- **Documentation-First**: All patterns from Context7 MCP official sources
+- **Spec-Driven Development**: Feature spec complete and validated (specs/001-better-auth-integration/spec.md)
+- **Type Safety**: TypeScript frontend, Python type hints backend
+- **Testing Requirements**: Jest (frontend), pytest (backend)
+- **Security Standards**: HTTPS, HTTP-only cookies, authorization enforcement, input validation
 
 ### Summary
 
-**GATE FAILURE**: This plan cannot proceed to Phase 0 (Research) until the constitutional conflict is resolved.
+**✅ ALL GATES PASSING** - Plan can proceed to Phase 0 (Research) and Phase 1 (Design)
 
-**Required Decision**: Choose Option A (Amend Constitution) or Option B (Redesign as Mock Auth)
+Constitution v3.0.0 provides full authorization for this feature's scope and technology stack.
 
 ---
 
-## Project Structure (Conditional)
+## Project Structure
 
 ### Documentation (this feature)
 
 ```text
 specs/001-better-auth-integration/
-├── plan.md              # This file (current status: BLOCKED)
-├── research.md          # Phase 0 output (BLOCKED until gate passes)
-├── data-model.md        # Phase 1 output (BLOCKED)
-├── quickstart.md        # Phase 1 output (BLOCKED)
-├── contracts/           # Phase 1 output (BLOCKED)
-└── tasks.md             # Phase 2 output (BLOCKED)
+├── plan.md              # This file (status: APPROVED)
+├── research.md          # Phase 0 output (in progress)
+├── data-model.md        # Phase 1 output (pending)
+├── quickstart.md        # Phase 1 output (pending)
+├── contracts/           # Phase 1 output (pending)
+│   ├── auth-contract.ts
+│   └── todo-contract.ts
+├── checklists/
+│   └── requirements.md  # Spec validation (completed)
+└── tasks.md             # Phase 2 output (pending /sp.tasks)
 ```
 
-### Source Code (if Option A - Backend Integration)
+### Source Code
 
 ```text
 backend/
@@ -227,120 +214,169 @@ app/                     # Next.js App Router
     └── AuthContext.tsx  # Auth state management
 ```
 
-### Source Code (if Option B - Mock Auth Only)
-
-```text
-app/                     # Next.js App Router
-├── login/
-│   └── page.tsx         # Mock login UI
-├── signup/
-│   └── page.tsx         # Mock signup UI
-├── dashboard/
-│   └── page.tsx         # Protected (mock) dashboard
-├── todos/
-│   └── page.tsx         # Protected (mock) todos
-├── components/
-│   ├── auth/
-│   │   ├── MockAuthProvider.tsx   # Mock auth context
-│   │   ├── ProtectedRoute.tsx     # Client-side guard
-│   │   ├── LoginForm.tsx          # Mock login form
-│   │   └── SignupForm.tsx         # Mock signup form
-│   └── todos/
-│       └── TaskForm.tsx            # Existing form
-├── lib/
-│   └── mock-auth.ts     # localStorage-based auth
-└── context/
-    └── MockAuthContext.tsx  # Mock auth state
-```
-
-**Structure Decision**: **BLOCKED** - Cannot determine structure until constitutional conflict is resolved.
 
 ## Complexity Tracking
 
-### Constitutional Violation Justification
+### Scope & Scale
 
-**Violation**: Requesting backend services in a frontend-only project
+**Feature Complexity**: HIGH
+- **Backend**: Authentication system, session management, database integration
+- **Frontend**: Auth UI, protected routes, state management
+- **Integration**: Frontend-backend coordination, CORS, credentials
+- **Security**: Authorization enforcement, secure sessions, data isolation
 
-**Justification Options**:
+**Implementation Estimate**:
+- 40 functional requirements
+- 6 user stories (prioritized P1/P2)
+- Multiple components: backend models, API endpoints, frontend UI, state management
+- Full security implementation required
 
-**Option A (Amend Constitution)**:
-- **Business Need**: Multi-user system requires real authentication and data isolation
-- **Technical Need**: Browser localStorage insufficient for production security
-- **User Value**: Secure, persistent user accounts and data privacy
-- **Migration Plan**: Expand scope to include backend services, update all templates
-- **Approval Required**: Yes - MAJOR version bump (2.0.0 → 3.0.0)
+**Risk Areas**:
+- Better-Auth configuration and integration (new library)
+- Session management across frontend/backend
+- CORS and credential handling
+- Database schema migrations
+- Authorization enforcement completeness
 
-**Option B (Comply with Constitution)**:
-- **No Justification Needed**: Redesign feature to be frontend-only
-- **Trade-off**: Mock authentication only, no real security or persistence
-- **User Value**: Demonstrates UI/UX patterns for future backend integration
-- **Migration Plan**: None - stays within current constitution
+## Phase 0: Research
 
-## Phase 0: Research (BLOCKED)
+**Status**: ✅ **READY TO EXECUTE**
 
-**Status**: Cannot proceed until Gate 2 (Scope Compliance) passes
+### Research Questions
 
-**Pending Research Questions** (if Option A chosen):
-1. Better-Auth integration patterns with Next.js App Router
-2. Better-Auth FastAPI adapter configuration
-3. Neon PostgreSQL connection with SQLModel
-4. Secure session cookie handling in Next.js
-5. Protected API route patterns with FastAPI dependencies
-6. Frontend-backend CORS configuration for credentials
-7. Better-Auth database schema requirements
+The following areas require documentation research via Context7 MCP:
 
-**Alternative Research Questions** (if Option B chosen):
-1. localStorage API security best practices
-2. Client-side session simulation patterns
-3. Mock authentication UI patterns
-4. Frontend-only protected route guards
-5. Backend-ready data structures without backend
+1. **Better-Auth Integration with Next.js App Router**
+   - How to configure Better-Auth client in Next.js 14+ App Router
+   - API route setup for Better-Auth handlers
+   - Session management patterns
+   - Client-side session access patterns
 
-**Output**: `research.md` (blocked until constitutional decision)
+2. **Better-Auth FastAPI Integration**
+   - FastAPI adapter/middleware configuration
+   - Session validation in FastAPI dependencies
+   - Database adapter setup for PostgreSQL
+   - Authentication flow coordination
 
-## Phase 1: Design & Contracts (BLOCKED)
+3. **Neon PostgreSQL Connection**
+   - Connection string format and pooling
+   - SQLModel integration patterns
+   - Migration strategies
+   - Connection management best practices
 
-**Status**: Cannot proceed until Phase 0 completes
+4. **Secure Session Handling**
+   - HTTP-only cookie configuration
+   - CORS setup for credentials
+   - Session expiration and renewal
+   - Cross-origin session sharing
 
-**Pending Design Artifacts**:
-- `data-model.md` - User, Session, Todo entities
-- `contracts/` - API contracts (if backend) or mock interfaces (if frontend-only)
-- `quickstart.md` - Setup instructions
+5. **Protected API Routes**
+   - FastAPI dependency injection for auth
+   - Session validation middleware
+   - Authorization patterns (user-scoped data)
+   - Error handling for auth failures
 
-**Output**: Design artifacts (blocked)
+6. **Frontend-Backend CORS**
+   - Credential-enabled CORS setup
+   - Origin configuration
+   - Preflight request handling
+   - Cookie transmission requirements
+
+7. **Better-Auth Database Schema**
+   - Required tables and columns
+   - Migration setup
+   - Relationships with application tables
+   - Index requirements
+
+**Output**: `research.md` (documenting findings from Context7 MCP queries)
+
+## Phase 1: Design & Contracts
+
+**Status**: ⏳ **PENDING** (after Phase 0 research.md completion)
+
+### Design Artifacts to Generate
+
+1. **data-model.md**
+   - User entity (fields, relationships, constraints)
+   - Session entity (Better-Auth managed)
+   - Todo entity (enhanced with user_id foreign key)
+   - Entity relationships diagram
+   - Database schema definition
+
+2. **contracts/auth-contract.ts**
+   - Authentication endpoints (login, signup, logout)
+   - Request/response interfaces
+   - Error response schemas
+   - Session validation endpoints
+
+3. **contracts/todo-contract.ts**
+   - Todo CRUD endpoints (with authorization)
+   - Request/response interfaces
+   - Error handling patterns
+   - User-scoped filtering
+
+4. **quickstart.md**
+   - Environment setup (DATABASE_URL, BETTER_AUTH_URL, BETTER_AUTH_SECRET)
+   - Database initialization steps
+   - Better-Auth configuration
+   - Development server setup
+   - Testing instructions
+
+**Output**: Design artifacts ready for implementation
 
 ---
 
 ## Recommendations
 
-### Immediate Actions Required
+### Implementation Priorities
 
-1. **Review Constitutional Conflict**: Understand the scope mismatch
-2. **Make Strategic Decision**: Choose Option A (amend) or Option B (redesign)
-3. **If Option A**: Draft constitutional amendment proposal
-4. **If Option B**: Update spec.md to remove backend requirements
-5. **Resume Planning**: Rerun `/sp.plan` after resolution
+**P1 - Critical Path** (User Stories 1, 2, 3, 5):
+1. Database schema setup (User, Session, Todo tables)
+2. Backend Better-Auth configuration
+3. Backend session validation dependency
+4. Frontend auth UI (login, signup)
+5. Frontend auth state management (Context API)
+6. Todo API authorization enforcement
+7. Protected route guards (frontend)
 
-### Long-Term Considerations
+**P2 - Enhanced UX** (User Stories 4, 6):
+1. Logout functionality
+2. Auth state display in UI
+3. Session expiration handling
+4. Error messaging and feedback
 
-If the project needs backend capabilities:
-- Consider updating the constitution to reflect full-stack scope
-- This would be a strategic shift from "frontend-only demo" to "production application"
-- Requires broader architectural decisions beyond this single feature
+### Security Implementation Checklist
+
+- [ ] HTTP-only cookies for session tokens
+- [ ] CORS configured with specific origins (no wildcard)
+- [ ] Authorization enforced at FastAPI dependency level
+- [ ] User ownership validated before all todo operations
+- [ ] Input validation on all form fields
+- [ ] SQL injection prevention via ORM
+- [ ] No sensitive data in error messages
+- [ ] HTTPS in production
+
+### Testing Strategy
+
+- **Backend**: pytest for auth flows, authorization, session management
+- **Frontend**: Jest + React Testing Library for UI components, forms, protected routes
+- **Integration**: End-to-end auth flows (signup → login → todo access → logout)
+- **Security**: Attempt unauthorized access, session tampering, cross-user access
 
 ---
 
 ## Status Summary
 
-**Planning Status**: ❌ **BLOCKED - GATE FAILURE**
-**Blocking Issue**: Constitutional scope violation (backend services requested but forbidden)
-**Next Step**: Resolve constitutional conflict via Option A or Option B
-**Resume Command**: `/sp.plan` (after resolution)
-
-**This plan cannot proceed to Phase 0 (Research) until the constitutional gate passes.**
+**Planning Status**: ✅ **APPROVED - READY FOR PHASE 0 & PHASE 1**
+**Constitutional Status**: Compliant with constitution v3.0.0
+**Next Steps**:
+1. Generate `research.md` (Phase 0)
+2. Generate design artifacts (Phase 1: data-model.md, contracts/, quickstart.md)
+3. Update agent context
+4. Proceed to `/sp.tasks` for task generation
 
 ---
 
 **Plan Created**: 2026-01-12
-**Plan Status**: BLOCKED PENDING CONSTITUTIONAL RESOLUTION
+**Plan Status**: ✅ APPROVED - Constitution v3.0.0 Compliant
 **Last Updated**: 2026-01-12

@@ -11,6 +11,7 @@ import { Modal } from '@/app/components/ui/Modal';
 import { Button } from '@/app/components/ui/Button';
 import { Navbar } from '@/app/components/layout/Navbar';
 import { Footer } from '@/app/components/layout/Footer';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 export default function TodosPage() {
   const { state } = useTaskContext();
@@ -92,56 +93,58 @@ export default function TodosPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex flex-col">
-      <Navbar currentPath="/todos" />
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex flex-col">
+        <Navbar currentPath="/todos" />
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Header */}
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">My Tasks</h1>
-            <p className="text-gray-600">
-              {filteredAndSortedTasks.length} {filteredAndSortedTasks.length === 1 ? 'task' : 'tasks'} found
-            </p>
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
+          {/* Header */}
+          <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-800 mb-2">My Tasks</h1>
+              <p className="text-gray-600">
+                {filteredAndSortedTasks.length} {filteredAndSortedTasks.length === 1 ? 'task' : 'tasks'} found
+              </p>
+            </div>
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={() => setIsAddModalOpen(true)}
+            >
+              + Add New Task
+            </Button>
           </div>
-          <Button
-            variant="primary"
-            size="lg"
-            onClick={() => setIsAddModalOpen(true)}
+
+          {/* Search and Sort */}
+          <div className="mb-6 flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <SearchInput />
+            </div>
+            <div className="sm:w-64">
+              <SortControl />
+            </div>
+          </div>
+
+          {/* Filters */}
+          <div className="mb-8">
+            <FilterPanel />
+          </div>
+
+          {/* Task List */}
+          <TaskList tasks={filteredAndSortedTasks} />
+
+          {/* Add Task Modal */}
+          <Modal
+            isOpen={isAddModalOpen}
+            onClose={() => setIsAddModalOpen(false)}
+            title="Add New Task"
           >
-            + Add New Task
-          </Button>
+            <TaskForm onSuccess={handleTaskAdded} />
+          </Modal>
         </div>
 
-        {/* Search and Sort */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <SearchInput />
-          </div>
-          <div className="sm:w-64">
-            <SortControl />
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="mb-8">
-          <FilterPanel />
-        </div>
-
-        {/* Task List */}
-        <TaskList tasks={filteredAndSortedTasks} />
-
-        {/* Add Task Modal */}
-        <Modal
-          isOpen={isAddModalOpen}
-          onClose={() => setIsAddModalOpen(false)}
-          title="Add New Task"
-        >
-          <TaskForm onSuccess={handleTaskAdded} />
-        </Modal>
+        <Footer />
       </div>
-
-      <Footer />
-    </div>
+    </ProtectedRoute>
   );
 }

@@ -5,32 +5,26 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Logo } from './Logo';
 import { NavbarProps } from '@/app/lib/types';
-import { authClient, User } from '@/lib/auth-client';
+import { useSession, signOut } from '@/lib/auth';
 
 export function Navbar({ currentPath }: NavbarProps) {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  // Use the new Better-Auth session hook
+  const { data: session, isLoading } = useSession();
+  const user = session?.user || null;
 
   const navLinks = [
     { href: '/todos', label: 'All Tasks' },
     { href: '/dashboard', label: 'Dashboard' },
   ];
 
-  useEffect(() => {
-    const loadSession = async () => {
-      const { data } = await authClient.getSession();
-      setUser(data?.user || null);
-    };
-
-    loadSession();
-  }, []);
-
   const handleSignOut = async () => {
-    await authClient.signOut();
-    setUser(null);
-    router.push('/welcome');
+    await signOut();
+    router.push('/login');
+    router.refresh(); // Refresh to update auth context
   };
 
   return (
@@ -64,9 +58,9 @@ export function Navbar({ currentPath }: NavbarProps) {
                   className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition"
                 >
                   <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                    {(user.name || user.email.split('@')[0]).charAt(0).toUpperCase()}
+                    {(user.name || user.email?.split('@')[0]).charAt(0).toUpperCase()}
                   </div>
-                  <span className="text-gray-700 font-medium">{user.name || user.email.split('@')[0]}</span>
+                  <span className="text-gray-700 font-medium">{user.name || user.email?.split('@')[0]}</span>
                   <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
@@ -75,7 +69,7 @@ export function Navbar({ currentPath }: NavbarProps) {
                 {userMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                     <div className="px-4 py-2 border-b border-gray-200">
-                      <p className="text-sm font-semibold text-gray-800">{user.name || user.email.split('@')[0]}</p>
+                      <p className="text-sm font-semibold text-gray-800">{user.name || user.email?.split('@')[0]}</p>
                       <p className="text-xs text-gray-600">{user.email}</p>
                     </div>
                     <Link
@@ -138,10 +132,10 @@ export function Navbar({ currentPath }: NavbarProps) {
               <div className="px-3 py-2 mb-2 border-b border-gray-200">
                 <div className="flex items-center gap-2">
                   <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                    {(user.name || user.email.split('@')[0]).charAt(0).toUpperCase()}
+                    {(user.name || user.email?.split('@')[0]).charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-gray-800">{user.name || user.email.split('@')[0]}</p>
+                    <p className="text-sm font-semibold text-gray-800">{user.name || user.email?.split('@')[0]}</p>
                     <p className="text-xs text-gray-600">{user.email}</p>
                   </div>
                 </div>

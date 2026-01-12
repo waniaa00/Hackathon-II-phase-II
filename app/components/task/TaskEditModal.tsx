@@ -85,8 +85,8 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
 
       setIsSubmitting(false);
       onClose();
-    } catch (error: any) {
-      setError(error.message || 'Failed to update task');
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'Failed to update task');
       setIsSubmitting(false);
     }
   };
