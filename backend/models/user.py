@@ -7,7 +7,6 @@ Better-Auth handles password hashing and authentication logic.
 
 from sqlmodel import SQLModel, Field
 from datetime import datetime
-from uuid import UUID, uuid4
 from typing import Optional
 
 
@@ -21,17 +20,18 @@ class User(SQLModel, table=True):
     - Authentication flows
 
     This model matches Better-Auth's expected schema.
+    Note: Better-Auth uses TEXT for IDs, not UUID.
     """
 
     __tablename__ = "user"
 
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    id: str = Field(primary_key=True)  # Better-Auth uses TEXT IDs
     email: str = Field(unique=True, index=True, max_length=255, nullable=False)
-    email_verified: bool = Field(default=False, nullable=False)
+    email_verified: bool = Field(default=False, nullable=False, alias="emailVerified")
     name: Optional[str] = Field(default=None, max_length=255)
     image: Optional[str] = Field(default=None)  # Profile image URL
-    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
-    updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False, alias="createdAt")
+    updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False, alias="updatedAt")
 
     class Config:
         json_schema_extra = {

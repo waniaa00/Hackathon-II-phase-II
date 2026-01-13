@@ -6,9 +6,8 @@ Each todo belongs to exactly one user and is protected by authorization checks.
 """
 
 from sqlmodel import SQLModel, Field, Column
-from sqlalchemy import ARRAY, String
+from sqlalchemy import ARRAY, String, text
 from datetime import datetime
-from uuid import UUID, uuid4
 from typing import Optional, List
 from enum import Enum
 
@@ -47,12 +46,16 @@ class Todo(SQLModel, table=True):
 
     __tablename__ = "todo"
 
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
-    user_id: UUID = Field(
+    id: str = Field(
+        primary_key=True,
+        sa_column_kwargs={"server_default": text("gen_random_uuid()::TEXT")},
+        description="Auto-generated TEXT UUID"
+    )
+    user_id: str = Field(
         foreign_key="user.id",
         index=True,
         nullable=False,
-        description="Owner user ID - enforces data isolation"
+        description="Owner user ID - enforces data isolation (TEXT to match Better-Auth)"
     )
     title: str = Field(max_length=255, nullable=False)
     description: Optional[str] = Field(default=None)
