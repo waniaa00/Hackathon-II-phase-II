@@ -20,8 +20,8 @@ import jwt
 from pydantic import BaseModel, EmailStr
 from sqlmodel import Field, Relationship, Session, SQLModel, create_engine, select
 
-from backend.dependencies import get_current_user
-from backend.utils.errors import NOT_AUTHENTICATED_ERROR, NOT_FOUND_ERROR
+from dependencies import get_current_user
+from utils.errors import NOT_AUTHENTICATED_ERROR, NOT_FOUND_ERROR
 
 # Load environment variables from .env file
 load_dotenv()

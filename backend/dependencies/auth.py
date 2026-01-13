@@ -11,9 +11,9 @@ from datetime import datetime
 from uuid import UUID
 from typing import Dict
 
-from backend.database import get_session
-from backend.models.session import SessionModel
-from backend.utils.errors import NOT_AUTHENTICATED_ERROR, create_error_response
+from database import get_session
+from models.session import SessionModel
+from utils.errors import NOT_AUTHENTICATED_ERROR, create_error_response
 
 
 async def get_current_user(
