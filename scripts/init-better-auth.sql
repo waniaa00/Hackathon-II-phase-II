@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS "user" (
   "id" TEXT PRIMARY KEY,
   "email" TEXT NOT NULL UNIQUE,
   "emailVerified" BOOLEAN NOT NULL DEFAULT FALSE,
-  "name" TEXT NOT NULL,
+  "name" TEXT,  -- Made nullable to allow signup without name
   "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "image" TEXT
