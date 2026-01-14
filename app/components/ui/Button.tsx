@@ -20,14 +20,14 @@ export function Button({
   className = '',
   ...props
 }: ButtonProps) {
-  const baseClasses = 'rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 shadow-sm';
+  const baseClasses = 'rounded-lg font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 hover:scale-105 backdrop-blur-sm';
 
   const variantClasses = {
-    primary: 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 hover:shadow-lg focus:ring-blue-500',
-    secondary: 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 hover:from-gray-200 hover:to-gray-300 hover:shadow-md focus:ring-gray-400 border border-gray-300',
-    danger: 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 hover:shadow-lg focus:ring-red-500',
-    outline: 'bg-transparent border-2 border-blue-600 text-blue-600 hover:bg-blue-50 hover:shadow-md focus:ring-blue-500',
-    ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 hover:shadow-sm focus:ring-gray-400',
+    primary: 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 hover:shadow-xl focus:ring-purple-500 border border-white/20',
+    secondary: 'bg-gradient-to-r from-gray-700 to-gray-800 text-white hover:from-gray-600 hover:to-gray-700 hover:shadow-md focus:ring-gray-500 border border-white/20',
+    danger: 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 hover:shadow-xl focus:ring-red-500 border border-white/20',
+    outline: 'bg-transparent border-2 border-white/30 text-white hover:bg-white/10 hover:shadow-lg focus:ring-purple-500',
+    ghost: 'bg-transparent text-gray-300 hover:bg-white/10 hover:shadow-sm focus:ring-purple-500',
   };
 
   const sizeClasses = {

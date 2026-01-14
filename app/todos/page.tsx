@@ -94,15 +94,15 @@ export default function TodosPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex flex-col">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col">
         <Navbar currentPath="/todos" />
 
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
           {/* Header */}
           <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold text-gray-800 mb-2">My Tasks</h1>
-              <p className="text-gray-600">
+              <h1 className="text-4xl font-bold text-white mb-2">My Tasks</h1>
+              <p className="text-gray-400">
                 {filteredAndSortedTasks.length} {filteredAndSortedTasks.length === 1 ? 'task' : 'tasks'} found
               </p>
             </div>
@@ -110,6 +110,7 @@ export default function TodosPage() {
               variant="primary"
               size="lg"
               onClick={() => setIsAddModalOpen(true)}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
             >
               + Add New Task
             </Button>

@@ -105,15 +105,15 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Error Message */}
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg backdrop-blur-sm">
+          <p className="text-sm text-red-300">{error}</p>
         </div>
       )}
 
       {/* Title Input */}
       <div>
-        <label htmlFor="task-title" className="block text-sm font-medium text-gray-700 mb-1.5">
-          Title <span className="text-red-500">*</span>
+        <label htmlFor="task-title" className="block text-sm font-medium text-gray-300 mb-1.5">
+          Title <span className="text-red-400">*</span>
         </label>
         <input
           id="task-title"
@@ -122,14 +122,14 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
           onChange={(e) => setTitle(e.target.value)}
           placeholder="What needs to be done?"
           maxLength={200}
-          className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 text-gray-800"
+          className="w-full px-3 py-2.5 text-sm border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-gray-500 text-white bg-white/5 backdrop-blur-sm"
           autoFocus
         />
       </div>
 
       {/* Description Input */}
       <div>
-        <label htmlFor="task-description" className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label htmlFor="task-description" className="block text-sm font-medium text-gray-300 mb-1.5">
           Description
         </label>
         <textarea
@@ -139,21 +139,21 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
           placeholder="Add details (optional)"
           maxLength={1000}
           rows={3}
-          className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 resize-none text-gray-800"
+          className="w-full px-3 py-2.5 text-sm border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-gray-500 resize-none text-white bg-white/5 backdrop-blur-sm"
         />
       </div>
 
       {/* Priority and Due Date Row */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="task-priority" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="task-priority" className="block text-sm font-medium text-gray-300 mb-1.5">
             Priority
           </label>
           <select
             id="task-priority"
             value={priority}
             onChange={(e) => setPriority(e.target.value as Priority)}
-            className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 bg-white"
+            className="w-full px-3 py-2.5 text-sm border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white bg-white/5 backdrop-blur-sm"
           >
             <option value="low">Low</option>
             <option value="medium">Medium</option>
@@ -162,7 +162,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
         </div>
 
         <div>
-          <label htmlFor="task-due-date" className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label htmlFor="task-due-date" className="block text-sm font-medium text-gray-300 mb-1.5">
             Due Date
           </label>
           <input
@@ -170,14 +170,14 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
             type="date"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+            className="w-full px-3 py-2.5 text-sm border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white bg-white/5 backdrop-blur-sm"
           />
         </div>
       </div>
 
       {/* Tags Input */}
       <div>
-        <label htmlFor="task-tags" className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label htmlFor="task-tags" className="block text-sm font-medium text-gray-300 mb-1.5">
           Tags
         </label>
         <input
@@ -186,34 +186,34 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
           value={tags}
           onChange={(e) => setTags(e.target.value)}
           placeholder="work, urgent, personal (comma-separated)"
-          className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 text-gray-800"
+          className="w-full px-3 py-2.5 text-sm border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-gray-500 text-white bg-white/5 backdrop-blur-sm"
         />
       </div>
 
       {/* Recurring Task Section */}
-      <div className="pt-3 border-t border-gray-200">
+      <div className="pt-3 border-t border-white/20">
         <label className="flex items-center gap-2.5 cursor-pointer">
           <input
             type="checkbox"
             checked={isRecurring}
             onChange={(e) => setIsRecurring(e.target.checked)}
-            className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+            className="w-4 h-4 rounded border-white/30 text-purple-500 focus:ring-2 focus:ring-purple-500 cursor-pointer bg-white/10"
           />
-          <span className="text-sm font-medium text-gray-700">Make this a recurring task</span>
+          <span className="text-sm font-medium text-gray-300">Make this a recurring task</span>
         </label>
 
         {isRecurring && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-3">
+          <div className="mt-4 p-4 bg-white/5 rounded-lg space-y-3 backdrop-blur-sm">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="recurrence-frequency" className="block text-xs font-medium text-gray-600 mb-1.5">
+                <label htmlFor="recurrence-frequency" className="block text-xs font-medium text-gray-400 mb-1.5">
                   Frequency
                 </label>
                 <select
                   id="recurrence-frequency"
                   value={frequency}
                   onChange={(e) => setFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 bg-white"
+                  className="w-full px-3 py-2 text-sm border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white bg-white/5 backdrop-blur-sm"
                 >
                   <option value="daily">Daily</option>
                   <option value="weekly">Weekly</option>
@@ -222,7 +222,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
               </div>
 
               <div>
-                <label htmlFor="recurrence-interval" className="block text-xs font-medium text-gray-600 mb-1.5">
+                <label htmlFor="recurrence-interval" className="block text-xs font-medium text-gray-400 mb-1.5">
                   Every
                 </label>
                 <input
@@ -232,13 +232,13 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
                   onChange={(e) => setInterval(Math.max(1, parseInt(e.target.value) || 1))}
                   min="1"
                   max="30"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
+                  className="w-full px-3 py-2 text-sm border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white bg-white/5 backdrop-blur-sm"
                 />
               </div>
             </div>
 
             {dueDate && (
-              <p className="text-xs text-gray-600">
+              <p className="text-xs text-gray-400">
                 Repeats every {interval} {frequency === 'daily' ? 'day(s)' : frequency === 'weekly' ? 'week(s)' : 'month(s)'} starting from {new Date(dueDate).toLocaleDateString()}
               </p>
             )}
@@ -251,7 +251,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105"
         >
           {isSubmitting ? 'Creating...' : 'Create Task'}
         </button>

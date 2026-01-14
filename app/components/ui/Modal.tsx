@@ -44,7 +44,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
   // Use createPortal to render modal at document.body level
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
       onClick={onClose} // Click outside to close
     >
       <div
@@ -52,13 +52,13 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="bg-white rounded-lg p-4 max-w-md w-full mx-4 shadow-xl flex flex-col h-auto max-h-[70vh] min-h-[250px]"
+        className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl flex flex-col h-auto max-h-[70vh] min-h-[250px] border border-white/20 backdrop-blur-xl"
         onClick={(e) => e.stopPropagation()} // Prevent close on content click
       >
-        <h2 id="modal-title" className="text-lg font-semibold mb-3 text-gray-900 flex-shrink-0 border-b border-gray-100 pb-2">
+        <h2 id="modal-title" className="text-lg font-semibold mb-3 text-white flex-shrink-0 border-b border-white/20 pb-2">
           {title}
         </h2>
-        <div className="overflow-y-auto flex-grow pb-1 max-h-[50vh]">
+        <div className="overflow-y-auto flex-grow pb-1 max-h-[50vh] text-gray-200">
           {children}
         </div>
       </div>

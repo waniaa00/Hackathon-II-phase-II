@@ -47,9 +47,9 @@ export function TaskItem({ task, onEdit }: TaskItemProps) {
   return (
     <div
       className={`
-        p-4 rounded-lg border
-        ${task.completed ? 'bg-gray-50 border-gray-200' : 'bg-white border-gray-300'}
-        hover:shadow-sm transition-shadow
+        p-4 rounded-2xl border
+        ${task.completed ? 'bg-white/5 border-white/20' : 'bg-white/5 border-white/20'}
+        hover:shadow-xl transition-all duration-300 hover:scale-105 backdrop-blur-sm
       `}
     >
       <div className="flex items-start gap-3">
@@ -58,7 +58,7 @@ export function TaskItem({ task, onEdit }: TaskItemProps) {
           type="checkbox"
           checked={task.completed}
           onChange={handleToggleComplete}
-          className="w-5 h-5 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer flex-shrink-0"
+          className="w-5 h-5 mt-0.5 rounded border-white/30 text-purple-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 cursor-pointer flex-shrink-0 bg-white/10"
           aria-label={`Mark "${task.title}" as ${task.completed ? 'incomplete' : 'complete'}`}
         />
 
@@ -69,14 +69,14 @@ export function TaskItem({ task, onEdit }: TaskItemProps) {
             <p
               className={`
                 flex-1 text-base font-medium
-                ${task.completed ? 'line-through text-gray-500' : 'text-gray-900'}
+                ${task.completed ? 'line-through text-gray-400' : 'text-white'}
               `}
             >
               {task.title}
             </p>
             <div className="flex items-center gap-2 flex-shrink-0">
               {task.recurrence && (
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium border border-purple-300">
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs font-medium border border-purple-500/30">
                   <svg
                     className="w-3 h-3"
                     fill="none"
@@ -105,13 +105,13 @@ export function TaskItem({ task, onEdit }: TaskItemProps) {
             <div className="mb-2">
               <button
                 onClick={() => setShowDescription(!showDescription)}
-                className="text-sm text-blue-600 hover:text-blue-700 focus:outline-none focus:underline"
+                className="text-sm text-purple-400 hover:text-purple-300 focus:outline-none focus:underline"
                 aria-expanded={showDescription}
               >
                 {showDescription ? 'Hide' : 'Show'} description
               </button>
               {showDescription && (
-                <p className="mt-1 text-sm text-gray-600 whitespace-pre-wrap">
+                <p className="mt-1 text-sm text-gray-300 whitespace-pre-wrap">
                   {task.description}
                 </p>
               )}
@@ -144,10 +144,11 @@ export function TaskItem({ task, onEdit }: TaskItemProps) {
         <div className="flex flex-col gap-2 flex-shrink-0">
           {onEdit && (
             <Button
-              variant="secondary"
+              variant="outline"
               size="sm"
               onClick={() => onEdit(task)}
               aria-label={`Edit task "${task.title}"`}
+              className="border-white/30 text-white hover:bg-white/10"
             >
               Edit
             </Button>
@@ -157,6 +158,7 @@ export function TaskItem({ task, onEdit }: TaskItemProps) {
             size="sm"
             onClick={handleDelete}
             aria-label={`Delete task "${task.title}"`}
+            className="border-red-500/30 text-red-400 hover:bg-red-500/10"
           >
             Delete
           </Button>

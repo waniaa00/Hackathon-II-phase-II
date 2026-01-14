@@ -8,10 +8,10 @@ export function QuickActions({
   completedCount
 }: QuickActionsProps) {
   return (
-    <div className="bg-gradient-to-br from-white to-blue-50 p-6 rounded-xl shadow-xl border border-blue-100">
+    <div className="bg-white/5 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/10">
       <div className="flex items-center gap-2 mb-5">
         <span className="text-2xl">⚡</span>
-        <h2 className="text-2xl font-bold text-gray-800">Quick Actions</h2>
+        <h2 className="text-2xl font-bold text-white">Quick Actions</h2>
       </div>
 
       <div className="space-y-3">
@@ -19,7 +19,7 @@ export function QuickActions({
           variant="primary"
           size="lg"
           onClick={onAddTask}
-          className="w-full"
+          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl"
         >
           ➕ Add New Task
         </Button>
@@ -28,7 +28,7 @@ export function QuickActions({
           variant="outline"
           size="md"
           onClick={onViewAll}
-          className="w-full"
+          className="w-full border-white/30 text-white hover:bg-white/10"
         >
           📋 View All Tasks
         </Button>
@@ -38,7 +38,7 @@ export function QuickActions({
           size="md"
           onClick={onClearCompleted}
           disabled={completedCount === 0}
-          className="w-full"
+          className="w-full border-red-500/30 text-red-400 hover:bg-red-500/10"
         >
           🗑️ Clear Completed ({completedCount})
         </Button>

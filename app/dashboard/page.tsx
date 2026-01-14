@@ -56,13 +56,13 @@ export default function DashboardPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex flex-col">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col">
         <Navbar currentPath="/dashboard" />
 
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">Dashboard</h1>
-            <p className="text-gray-600">Welcome back! Here&apos;s your task overview</p>
+            <h1 className="text-4xl font-bold text-white mb-2">Dashboard</h1>
+            <p className="text-gray-300">Welcome back! Here&apos;s your task overview</p>
           </div>
 
           {/* Summary Cards */}

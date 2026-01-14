@@ -109,7 +109,7 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
         />
 
         <div>
-          <label htmlFor="edit-description" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="edit-description" className="block text-sm font-medium text-gray-300 mb-1">
             Description
           </label>
           <textarea
@@ -119,20 +119,20 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
             onChange={(e) => setDescription(e.target.value)}
             maxLength={1000}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-800"
+            className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-white bg-white/5 backdrop-blur-sm"
             aria-label="Task description"
           />
         </div>
 
         <div>
-          <label htmlFor="edit-priority" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="edit-priority" className="block text-sm font-medium text-gray-300 mb-1">
             Priority
           </label>
           <select
             id="edit-priority"
             value={priority}
             onChange={(e) => setPriority(e.target.value as Priority)}
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 font-medium shadow-sm"
+            className="w-full px-3 py-2.5 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white bg-white/5 backdrop-blur-sm font-medium shadow-sm"
             aria-label="Task priority"
           >
             <option value="low">🟢 Low Priority</option>
@@ -160,17 +160,17 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
         />
 
         {/* Recurrence Section */}
-        <div className="border-t border-gray-200 pt-3">
+        <div className="border-t border-white/20 pt-3">
           <div className="flex items-center gap-2 mb-2">
             <input
               type="checkbox"
               id="edit-enable-recurrence"
               checked={enableRecurrence}
               onChange={(e) => setEnableRecurrence(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              className="w-4 h-4 rounded border-white/30 text-purple-500 focus:ring-2 focus:ring-purple-500 cursor-pointer bg-white/10"
               aria-label="Enable recurrence"
             />
-            <label htmlFor="edit-enable-recurrence" className="text-sm font-medium text-gray-700 cursor-pointer">
+            <label htmlFor="edit-enable-recurrence" className="text-sm font-medium text-gray-300 cursor-pointer">
               Recurring Task
             </label>
           </div>
@@ -179,14 +179,14 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
             <div className="space-y-3 mt-2">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="edit-recurrence-frequency" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="edit-recurrence-frequency" className="block text-sm font-medium text-gray-300 mb-1">
                     Frequency
                   </label>
                   <select
                     id="edit-recurrence-frequency"
                     value={recurrenceFrequency}
                     onChange={(e) => setRecurrenceFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
-                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-gray-800"
+                    className="w-full px-2 py-1.5 text-sm border border-white/30 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-transparent text-white bg-white/5 backdrop-blur-sm"
                     aria-label="Recurrence frequency"
                   >
                     <option value="daily">📅 Daily</option>
@@ -196,7 +196,7 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
                 </div>
 
                 <div>
-                  <label htmlFor="edit-recurrence-interval" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="edit-recurrence-interval" className="block text-sm font-medium text-gray-300 mb-1">
                     Every
                   </label>
                   <input
@@ -206,7 +206,7 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
                     onChange={(e) => setRecurrenceInterval(Math.max(1, parseInt(e.target.value) || 1))}
                     min="1"
                     max="30"
-                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded text-gray-800"
+                    className="w-full px-2 py-1.5 text-sm border border-white/30 rounded text-white bg-white/5 backdrop-blur-sm"
                     aria-label="Recurrence interval"
                   />
                 </div>
@@ -224,12 +224,13 @@ export function TaskEditModal({ task, isOpen, onClose }: TaskEditModalProps) {
           </SlideDown>
         </div>
 
-        <div className="flex gap-2 justify-end pt-3 border-t border-gray-200 mt-2">
+        <div className="flex gap-2 justify-end pt-3 border-t border-white/20 mt-2">
           <Button
             type="button"
-            variant="secondary"
+            variant="outline"
             onClick={onClose}
             disabled={isSubmitting}
+            className="border-white/30 text-white hover:bg-white/10"
           >
             Cancel
           </Button>

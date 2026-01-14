@@ -22,7 +22,7 @@ export function TaskList({ tasks }: TaskListProps) {
   if (tasks.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/10 mb-4 backdrop-blur-sm">
           <svg
             className="w-8 h-8 text-gray-400"
             fill="none"
@@ -38,10 +38,10 @@ export function TaskList({ tasks }: TaskListProps) {
             />
           </svg>
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-1">
+        <h3 className="text-lg font-medium text-white mb-1">
           No tasks yet
         </h3>
-        <p className="text-gray-600">
+        <p className="text-gray-400">
           Add your first task to get started
         </p>
       </div>

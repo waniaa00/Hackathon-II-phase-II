@@ -18,10 +18,10 @@ export function Logo({ size = 'medium', onClick }: LogoProps) {
       className={`flex items-center gap-2 ${onClick ? 'cursor-pointer hover:opacity-80' : ''}`}
       onClick={onClick}
     >
-      <div className={`flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 ${iconSizeClasses[size]}`}>
+      <div className={`flex items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 ${iconSizeClasses[size]} backdrop-blur-sm`}>
         <span className="text-white font-bold">✓</span>
       </div>
-      <span className={`${sizeClasses[size]} font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent`}>
+      <span className={`${sizeClasses[size]} font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent`}>
         TASKIFY
       </span>
     </div>

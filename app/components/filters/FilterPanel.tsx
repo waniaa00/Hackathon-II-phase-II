@@ -30,14 +30,15 @@ export function FilterPanel() {
     filters.dueDate !== 'all';
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4">
+    <div className="bg-white/5 backdrop-blur-sm border border-white/20 rounded-2xl p-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-gray-900">Filters</h3>
+        <h3 className="text-sm font-semibold text-white">Filters</h3>
         {hasActiveFilters && (
           <Button
-            variant="secondary"
+            variant="outline"
             size="sm"
             onClick={handleClearFilters}
+            className="border-white/30 text-white hover:bg-white/10"
           >
             Clear All
           </Button>
@@ -47,14 +48,14 @@ export function FilterPanel() {
       <div className="space-y-4">
         {/* Status Filter */}
         <div>
-          <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="status-filter" className="block text-sm font-medium text-gray-300 mb-1">
             Status
           </label>
           <select
             id="status-filter"
             value={filters.status}
             onChange={(e) => handleFilterChange('status', e.target.value)}
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 font-medium shadow-sm"
+            className="w-full px-3 py-2.5 border border-white/30 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white bg-white/5 backdrop-blur-sm font-medium shadow-sm"
             aria-label="Filter by status"
           >
             <option value="all">📋 All Tasks</option>
@@ -65,14 +66,14 @@ export function FilterPanel() {
 
         {/* Priority Filter */}
         <div>
-          <label htmlFor="priority-filter" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="priority-filter" className="block text-sm font-medium text-gray-300 mb-1">
             Priority
           </label>
           <select
             id="priority-filter"
             value={filters.priority}
             onChange={(e) => handleFilterChange('priority', e.target.value)}
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 font-medium shadow-sm"
+            className="w-full px-3 py-2.5 border border-white/30 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white bg-white/5 backdrop-blur-sm font-medium shadow-sm"
             aria-label="Filter by priority"
           >
             <option value="all">🎯 All Priorities</option>
@@ -84,14 +85,14 @@ export function FilterPanel() {
 
         {/* Due Date Filter */}
         <div>
-          <label htmlFor="duedate-filter" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="duedate-filter" className="block text-sm font-medium text-gray-300 mb-1">
             Due Date
           </label>
           <select
             id="duedate-filter"
             value={filters.dueDate}
             onChange={(e) => handleFilterChange('dueDate', e.target.value)}
-            className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 font-medium shadow-sm"
+            className="w-full px-3 py-2.5 border border-white/30 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white bg-white/5 backdrop-blur-sm font-medium shadow-sm"
             aria-label="Filter by due date"
           >
             <option value="all">📅 All Dates</option>

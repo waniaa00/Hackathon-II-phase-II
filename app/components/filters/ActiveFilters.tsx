@@ -65,18 +65,18 @@ export function ActiveFilters() {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2 pb-4 border-b border-gray-200">
-      <span className="text-sm font-medium text-gray-700">Active filters:</span>
+    <div className="flex flex-wrap items-center gap-2 pb-4 border-b border-white/20">
+      <span className="text-sm font-medium text-gray-300">Active filters:</span>
       {activeFilters.map((filter) => (
         <div
           key={filter.key}
-          className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+          className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-purple-600/30 to-pink-600/30 text-white rounded-full text-sm backdrop-blur-sm border border-white/20"
         >
           <span className="font-medium">{filter.label}:</span>
           <span>{filter.value}</span>
           <button
             onClick={() => handleRemoveFilter(filter.key)}
-            className="ml-1 hover:text-blue-900 focus:outline-none"
+            className="ml-1 hover:text-gray-200 focus:outline-none"
             aria-label={`Remove ${filter.label} filter`}
           >
             <svg
