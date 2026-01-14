@@ -18,7 +18,7 @@ export function SummaryCard({ type, label, count, icon }: SummaryCardProps) {
   const displayIcon = icon || iconStyles[type];
 
   return (
-    <div className={`p-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm transform transition-all hover:scale-105 hover:shadow-xl ${cardStyles[type]}`}>
+    <div className={`p-6 rounded-2xl border border-white/10 backdrop-blur-sm transform transition-all hover:scale-105 hover:shadow-xl ${cardStyles[type]}`}>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold opacity-90 uppercase tracking-wide">{label}</p>

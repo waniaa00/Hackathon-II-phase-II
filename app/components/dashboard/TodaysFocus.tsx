@@ -19,7 +19,7 @@ export function TodaysFocus({ tasks }: TodaysFocusProps) {
       </div>
 
       {tasks.length === 0 ? (
-        <div className="text-center py-12 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-lg backdrop-blur-sm">
+        <div className="text-center py-12 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-lg backdrop-blur-sm">
           <p className="text-6xl mb-3">✨</p>
           <p className="text-lg font-semibold text-white">All caught up!</p>
           <p className="text-gray-400 mt-1">No urgent tasks for today.</p>

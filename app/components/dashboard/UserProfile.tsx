@@ -10,23 +10,45 @@ export function UserProfile() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Demo mode: Skip real auth check and use demo user
+  const isDemoMode = true; // Set to true for demo without login
+
   useEffect(() => {
     const loadSession = async () => {
-      const { data } = await authClient.getSession();
-      setUser(data?.user || null);
-      setIsLoading(false);
+      if (isDemoMode) {
+        // In demo mode, use a simulated user
+        const demoUser = {
+          id: "demo-user-id-12345",
+          email: "demo@example.com",
+          name: "Demo User",
+          emailVerified: true,
+          createdAt: new Date().toISOString(),
+          image: null,
+        };
+        setUser(demoUser);
+        setIsLoading(false);
+      } else {
+        const { data } = await authClient.getSession();
+        setUser(data?.user || null);
+        setIsLoading(false);
 
-      if (!data?.user) {
-        router.push('/login');
+        if (!data?.user) {
+          router.push('/login');
+        }
       }
     };
 
     loadSession();
-  }, [router]);
+  }, [router, isDemoMode]);
 
   const handleSignOut = async () => {
-    await authClient.signOut();
-    router.push('/welcome');
+    if (isDemoMode) {
+      // In demo mode, just redirect to welcome
+      router.push('/welcome');
+    } else {
+      await authClient.signOut();
+      router.push('/welcome');
+    }
   };
 
   if (isLoading) {

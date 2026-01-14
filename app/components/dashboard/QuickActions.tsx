@@ -19,7 +19,7 @@ export function QuickActions({
           variant="primary"
           size="lg"
           onClick={onAddTask}
-          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl"
+          className="w-full"
         >
           ➕ Add New Task
         </Button>
@@ -28,7 +28,7 @@ export function QuickActions({
           variant="outline"
           size="md"
           onClick={onViewAll}
-          className="w-full border-white/30 text-white hover:bg-white/10"
+          className="w-full"
         >
           📋 View All Tasks
         </Button>
@@ -38,7 +38,7 @@ export function QuickActions({
           size="md"
           onClick={onClearCompleted}
           disabled={completedCount === 0}
-          className="w-full border-red-500/30 text-red-400 hover:bg-red-500/10"
+          className="w-full"
         >
           🗑️ Clear Completed ({completedCount})
         </Button>
