@@ -28,7 +28,6 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // In demo mode, we'll simulate authentication
   const isDemoMode = true; // Set to true for demo without login
-  const isDemoAuthenticated = isDemoMode || isAuthenticated;
 
   // T076: Redirect to login if not authenticated (in non-demo mode)
   useEffect(() => {
