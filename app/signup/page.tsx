@@ -18,18 +18,27 @@ export default function SignupPage() {
   const { isAuthenticated, isLoading } = useAuth()
   const emailInputRef = useRef<HTMLInputElement>(null)
 
+  // Demo mode: Skip signup and go directly to dashboard
+  const isDemoMode = true; // Set to true for demo without login
+
   useEffect(() => {
+    if (isDemoMode) {
+      // In demo mode, go directly to dashboard
+      router.push('/dashboard');
+      return;
+    }
+
     if (!isLoading && isAuthenticated) {
       router.push('/dashboard')
     }
-  }, [isAuthenticated, isLoading, router])
+  }, [isAuthenticated, isLoading, router, isDemoMode])
 
-  // Auto-focus email input on mount
+  // Auto-focus email input on mount (only if not in demo mode)
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!isDemoMode && !isLoading && !isAuthenticated) {
       emailInputRef.current?.focus()
     }
-  }, [isLoading, isAuthenticated])
+  }, [isLoading, isAuthenticated, isDemoMode])
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()

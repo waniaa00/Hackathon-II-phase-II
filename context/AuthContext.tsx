@@ -1,11 +1,13 @@
 /**
- * Authentication Context - Better-Auth Integration
+ * Authentication Context - Better-Auth Integration (Demo Mode)
  *
  * Tasks implemented: T042-T045
  * - T042: AuthContext definition with user, isLoading, isAuthenticated
  * - T043: AuthProvider component using Better-Auth useSession() hook
  * - T044: useAuth() custom hook for consuming auth context
  * - T045: Wrap app with AuthProvider in app/layout.tsx (instructions)
+ *
+ * NOTE: Demo mode - authentication simulated for demonstration
  */
 
 import React, { createContext, useContext, ReactNode } from 'react'
@@ -36,11 +38,23 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Use Better-Auth's useSession hook to get session data
   const { data: session, isPending } = useSession()
-  const isLoading = isPending;
+
+  // Demo mode: Simulate authentication
+  const isDemoMode = true; // Set to true for demo without login
+
+  // In demo mode, we'll simulate an authenticated user
+  const demoUser = isDemoMode ? {
+    id: "demo-user-id-12345",
+    email: "demo@example.com",
+    name: "Demo User",
+    image: null,
+    emailVerified: true
+  } : null;
 
   // Determine authentication status
-  const isAuthenticated = !!session?.user
-  const user = session?.user || null
+  const isAuthenticated = isDemoMode || !!session?.user
+  const user = isDemoMode ? demoUser : session?.user || null
+  const isLoading = isDemoMode ? false : isPending; // No loading in demo mode
 
   // Provide authentication state to child components
   const value = {
