@@ -1,0 +1,501 @@
+# OpenAPI Specification for 008-backend-api
+# Extends 007-db-integration/contracts/openapi.yaml with API layer details
+#
+# Note: This file focuses on error handling, authentication, and middleware
+# behaviors. Core endpoints are defined in 007-db-integration.
+
+openapi: 3.1.0
+info:
+  title: Todo App API - Backend & API Layer
+  description: |
+    RESTful API for Todo App task management.
+
+    ## Authentication
+    All endpoints (except /health) require JWT authentication via Bearer token.
+    Tokens are issued by Better Auth on the frontend and verified against JWKS.
+
+    ## User Isolation
+    All data is isolated per user. The {user_id} in the path must match the
+    authenticated user's ID from the JWT token.
+
+    ## Error Handling
+    All errors return consistent JSON with `detail` and `code` fields.
+
+    ## Pagination
+    List endpoints support `page` and `page_size` query parameters.
+    Responses include `total` count for client-side pagination.
+  version: 1.0.0
+  contact:
+    name: Todo App Team
+
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  - url: https://api.todoapp.example.com
+    description: Production server
+
+tags:
+  - name: Authentication
+    description: Authentication and authorization behaviors
+  - name: Tasks
+    description: Task CRUD operations
+  - name: Tags
+    description: Tag management
+  - name: Priorities
+    description: Priority levels
+  - name: System
+    description: Health and monitoring endpoints
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token from Better Auth. Include in Authorization header as:
+        `Authorization: Bearer <token>`
+
+        Token is verified against JWKS endpoint at `{frontend_url}/api/auth/jwks`
+
+  schemas:
+    # ==================== Error Schemas ====================
+    ErrorResponse:
+      type: object
+      required:
+        - detail
+        - code
+      properties:
+        detail:
+          type: string
+          description: Human-readable error message
+          example: "Task not found"
+        code:
+          type: string
+          description: Machine-readable error code
+          enum:
+            - UNAUTHORIZED
+            - FORBIDDEN
+            - NOT_FOUND
+            - CONFLICT
+            - VALIDATION_ERROR
+            - INTERNAL_ERROR
+            - SERVICE_UNAVAILABLE
+          example: "NOT_FOUND"
+
+    ValidationErrorResponse:
+      type: object
+      required:
+        - detail
+        - code
+        - errors
+      properties:
+        detail:
+          type: string
+          default: "Validation error"
+        code:
+          type: string
+          default: "VALIDATION_ERROR"
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  oneOf:
+                    - type: string
+                    - type: integer
+                description: Path to the field with error
+              msg:
+                type: string
+                description: Error message
+              type:
+                type: string
+                description: Error type code
+
+    # ==================== Pagination Schemas ====================
+    PaginationMeta:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total items matching filters
+          example: 42
+        page:
+          type: integer
+          description: Current page number
+          example: 1
+        page_size:
+          type: integer
+          description: Items per page
+          example: 20
+        total_pages:
+          type: integer
+          description: Total number of pages
+          example: 3
+
+    # ==================== Filter Schemas ====================
+    TaskFilters:
+      type: object
+      description: Query parameters for filtering tasks
+      properties:
+        status:
+          type: string
+          enum: [pending, completed]
+          description: Filter by task status
+        priority_id:
+          type: string
+          format: uuid
+          description: Filter by priority
+        tag_id:
+          type: string
+          format: uuid
+          description: Filter by tag (tasks with this tag)
+        due_before:
+          type: string
+          format: date-time
+          description: Tasks due before this datetime
+        due_after:
+          type: string
+          format: date-time
+          description: Tasks due after this datetime
+        search:
+          type: string
+          maxLength: 100
+          description: Search in title and description (case-insensitive)
+
+    TaskSorting:
+      type: object
+      description: Query parameters for sorting tasks
+      properties:
+        sort_by:
+          type: string
+          enum: [created_at, due_date, title, priority]
+          default: created_at
+          description: Field to sort by
+        sort_order:
+          type: string
+          enum: [asc, desc]
+          default: desc
+          description: Sort direction
+
+  responses:
+    # ==================== Standard Error Responses ====================
+    Unauthorized:
+      description: Authentication required or token invalid
+      headers:
+        X-Correlation-ID:
+          schema:
+            type: string
+          description: Request correlation ID for debugging
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            missing_token:
+              summary: No token provided
+              value:
+                detail: "Missing authorization header"
+                code: "UNAUTHORIZED"
+            invalid_token:
+              summary: Invalid or expired token
+              value:
+                detail: "Token has expired"
+                code: "UNAUTHORIZED"
+            malformed_token:
+              summary: Malformed token
+              value:
+                detail: "Invalid token format"
+                code: "UNAUTHORIZED"
+
+    Forbidden:
+      description: Access denied - user_id mismatch or insufficient permissions
+      headers:
+        X-Correlation-ID:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            user_mismatch:
+              summary: JWT user doesn't match path user_id
+              value:
+                detail: "You do not have access to this resource"
+                code: "FORBIDDEN"
+
+    NotFound:
+      description: Requested resource does not exist
+      headers:
+        X-Correlation-ID:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            task_not_found:
+              summary: Task doesn't exist
+              value:
+                detail: "Task not found"
+                code: "NOT_FOUND"
+            tag_not_found:
+              summary: Tag doesn't exist
+              value:
+                detail: "Tag not found"
+                code: "NOT_FOUND"
+
+    Conflict:
+      description: Resource conflict (e.g., duplicate)
+      headers:
+        X-Correlation-ID:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            duplicate_tag:
+              summary: Tag name already exists
+              value:
+                detail: "A tag with this name already exists"
+                code: "CONFLICT"
+
+    ValidationError:
+      description: Request validation failed
+      headers:
+        X-Correlation-ID:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorResponse'
+          example:
+            detail: "Validation error"
+            code: "VALIDATION_ERROR"
+            errors:
+              - loc: ["body", "title"]
+                msg: "field required"
+                type: "value_error.missing"
+
+    ServiceUnavailable:
+      description: Service temporarily unavailable (database down)
+      headers:
+        X-Correlation-ID:
+          schema:
+            type: string
+        Retry-After:
+          schema:
+            type: integer
+          description: Suggested retry delay in seconds
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            detail: "Database temporarily unavailable"
+            code: "SERVICE_UNAVAILABLE"
+
+  parameters:
+    # ==================== Common Path Parameters ====================
+    UserIdPath:
+      name: user_id
+      in: path
+      required: true
+      description: |
+        User's unique identifier. Must match the authenticated user's ID
+        from the JWT token's `sub` claim.
+      schema:
+        type: string
+        format: uuid
+
+    TaskIdPath:
+      name: task_id
+      in: path
+      required: true
+      description: Task's unique identifier
+      schema:
+        type: string
+        format: uuid
+
+    TagIdPath:
+      name: tag_id
+      in: path
+      required: true
+      description: Tag's unique identifier
+      schema:
+        type: string
+        format: uuid
+
+    # ==================== Pagination Parameters ====================
+    PageParam:
+      name: page
+      in: query
+      description: Page number (1-indexed)
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    PageSizeParam:
+      name: page_size
+      in: query
+      description: Items per page (max 100)
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    # ==================== Filter Parameters ====================
+    StatusFilter:
+      name: status
+      in: query
+      description: Filter by task status
+      schema:
+        type: string
+        enum: [pending, completed]
+
+    PriorityIdFilter:
+      name: priority_id
+      in: query
+      description: Filter by priority
+      schema:
+        type: string
+        format: uuid
+
+    TagIdFilter:
+      name: tag_id
+      in: query
+      description: Filter by tag
+      schema:
+        type: string
+        format: uuid
+
+    DueBeforeFilter:
+      name: due_before
+      in: query
+      description: Tasks due before this datetime (ISO 8601)
+      schema:
+        type: string
+        format: date-time
+
+    DueAfterFilter:
+      name: due_after
+      in: query
+      description: Tasks due after this datetime (ISO 8601)
+      schema:
+        type: string
+        format: date-time
+
+    SearchFilter:
+      name: search
+      in: query
+      description: Search term (searches title and description)
+      schema:
+        type: string
+        maxLength: 100
+
+    # ==================== Sort Parameters ====================
+    SortByParam:
+      name: sort_by
+      in: query
+      description: Field to sort by
+      schema:
+        type: string
+        enum: [created_at, due_date, title, priority]
+        default: created_at
+
+    SortOrderParam:
+      name: sort_order
+      in: query
+      description: Sort direction
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: desc
+
+paths:
+  # Health check is public (no auth)
+  /health:
+    get:
+      summary: Health check endpoint
+      operationId: healthCheck
+      tags:
+        - System
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  database:
+                    type: string
+                    example: "connected"
+                  version:
+                    type: string
+                    example: "1.0.0"
+
+  # Authentication behavior example (extends 007 definition)
+  /api/{user_id}/tasks:
+    get:
+      summary: List all tasks for user with filtering, sorting, and pagination
+      operationId: listTasks
+      tags:
+        - Tasks
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+        - $ref: '#/components/parameters/StatusFilter'
+        - $ref: '#/components/parameters/PriorityIdFilter'
+        - $ref: '#/components/parameters/TagIdFilter'
+        - $ref: '#/components/parameters/DueBeforeFilter'
+        - $ref: '#/components/parameters/DueAfterFilter'
+        - $ref: '#/components/parameters/SearchFilter'
+        - $ref: '#/components/parameters/SortByParam'
+        - $ref: '#/components/parameters/SortOrderParam'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+      responses:
+        '200':
+          description: Paginated list of tasks
+          headers:
+            X-Correlation-ID:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      $ref: '../007-db-integration/contracts/openapi.yaml#/components/schemas/TaskResponse'
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  page_size:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'

@@ -1,0 +1,15 @@
+[project]
+name = "todo-app-backend"
+version = "0.1.0"
+description = "Backend API for Todo App using FastAPI and SQLModel"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
