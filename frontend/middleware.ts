@@ -24,8 +24,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check for session cookie (Better Auth default cookie name)
-  const sessionCookie = request.cookies.get("better-auth.session_token");
+  // Check for session cookie (Better Auth uses __Secure- prefix on HTTPS)
+  const sessionCookie =
+    request.cookies.get("better-auth.session_token") ||
+    request.cookies.get("__Secure-better-auth.session_token");
 
   if (!sessionCookie) {
     // Redirect to login if no session

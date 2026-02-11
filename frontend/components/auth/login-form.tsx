@@ -26,7 +26,7 @@ export function LoginForm() {
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
-  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const callbackUrl = searchParams.get("callbackUrl") || "/tasks";
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
