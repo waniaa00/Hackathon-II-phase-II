@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 export const metadata = {
-  title: "Login | Todo App",
+  title: "Login | Taskify",
   description: "Sign in to your account",
 };
 

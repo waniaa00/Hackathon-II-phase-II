@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Todo App",
+  title: "Taskify",
   description: "A modern task management application",
 };
 

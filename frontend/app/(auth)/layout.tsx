@@ -17,7 +17,7 @@ export default function AuthLayout({
             <div className="p-3 bg-white/15 rounded-2xl backdrop-blur-sm">
               <ListTodo className="h-10 w-10" />
             </div>
-            <h1 className="text-4xl font-bold">Todo App</h1>
+            <h1 className="text-4xl font-bold">Taskify</h1>
           </div>
           <p className="text-xl text-white/80 leading-relaxed">
             Organize your life, one task at a time. Stay focused, stay productive.

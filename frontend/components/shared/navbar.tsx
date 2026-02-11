@@ -40,7 +40,7 @@ export function Navbar() {
             <div className="p-1.5 bg-primary rounded-lg group-hover:shadow-md transition-shadow">
               <ListTodo className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="font-bold text-lg gradient-text">Todo App</span>
+            <span className="font-bold text-lg gradient-text">Taskify</span>
           </Link>
 
           {/* Desktop nav links — shown on non-auth pages */}
